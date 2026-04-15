@@ -58,6 +58,20 @@
   .stat .n { font-size: 20px; font-weight: 800; font-family: ui-monospace, monospace; }
   .stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-top: 2px; }
   .tier-a .n { color: var(--a); } .tier-b .n { color: var(--b); } .tier-c .n { color: var(--c); } .tier-d .n { color: var(--d); }
+  /* Clickable tier/flag stat cards (filter the lead list) */
+  .stats .stat { cursor: pointer; border: 2px solid transparent; border-radius: 8px; padding: 4px 2px; transition: background 0.15s, border-color 0.15s; }
+  .stats .stat:hover { background: #f9fafb; }
+  .stats .stat.filter-active { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .stats .stat.tier-a.filter-active { border-color: var(--a); }
+  .stats .stat.tier-b.filter-active { border-color: var(--b); }
+  .stats .stat.tier-c.filter-active { border-color: var(--c); }
+  .stats .stat.tier-d.filter-active { border-color: var(--d); }
+  .stats .stat.flag.filter-active { border-color: #dc2626; }
+  .stats .stat.flag .n { color: #dc2626; }
+  .filter-bar { display: none; align-items: center; justify-content: space-between; padding: 6px 14px; background: #fefce8; border-bottom: 1px solid #fde68a; font-size: 11px; color: #854d0e; }
+  .filter-bar.active { display: flex; }
+  .filter-bar button { background: none; border: none; color: #854d0e; font-weight: 600; cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+  .filter-bar button:hover { background: #fde68a; }
   /* AI value metrics — appear after Enable AI click */
   .ai-metrics { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--violet-bg) 0%, #fff 100%); animation: fadeIn 0.5s ease-out; }
   .ai-metrics.active { display: grid; }
@@ -187,11 +201,15 @@
   <main>
     <div class="panel">
       <div class="stats">
-        <div class="stat tier-a"><div class="n" id="s-a">–</div><div class="l">Tier A</div></div>
-        <div class="stat tier-b"><div class="n" id="s-b">–</div><div class="l">Tier B</div></div>
-        <div class="stat tier-c"><div class="n" id="s-c">–</div><div class="l">Tier C</div></div>
-        <div class="stat tier-d"><div class="n" id="s-d">–</div><div class="l">Tier D</div></div>
-        <div class="stat"><div class="n" id="s-flag">–</div><div class="l">Flag</div></div>
+        <div class="stat tier-a" data-filter="A"><div class="n" id="s-a">–</div><div class="l">Tier A</div></div>
+        <div class="stat tier-b" data-filter="B"><div class="n" id="s-b">–</div><div class="l">Tier B</div></div>
+        <div class="stat tier-c" data-filter="C"><div class="n" id="s-c">–</div><div class="l">Tier C</div></div>
+        <div class="stat tier-d" data-filter="D"><div class="n" id="s-d">–</div><div class="l">Tier D</div></div>
+        <div class="stat flag" data-filter="FLAG"><div class="n" id="s-flag">–</div><div class="l">Flag</div></div>
+      </div>
+      <div class="filter-bar" id="filter-bar">
+        <span id="filter-label">—</span>
+        <button id="filter-clear">Clear filter ×</button>
       </div>
       <div class="ai-metrics" id="ai-metrics">
         <div class="ai-metrics-header">AI layer added</div>
@@ -213,12 +231,14 @@
 
 <script>
 const $ = (id) => document.getElementById(id);
-let state = { leads: [], stats: null, selectedId: null };
+let state = { leads: [], stats: null, selectedId: null, filter: null };
 
 function showDashboard() { $("landing").style.display = "none"; $("dashboard").classList.add("active"); }
 function showLanding() {
   // Full reset: clear all lead data and return to landing exactly like first load.
-  state = { leads: [], stats: null, selectedId: null };
+  state = { leads: [], stats: null, selectedId: null, filter: null };
+  document.querySelectorAll(".stats .stat").forEach(el => el.classList.remove("filter-active"));
+  $("filter-bar").classList.remove("active");
   $("s-a").textContent = "–"; $("s-b").textContent = "–"; $("s-c").textContent = "–"; $("s-d").textContent = "–"; $("s-flag").textContent = "–";
   $("meta").textContent = "—";
   $("source-tag").style.display = "none";
@@ -290,10 +310,42 @@ function renderStats(stats) {
   }
 }
 
+function filterLeads() {
+  if (!state.filter) return state.leads;
+  if (state.filter === "FLAG") return state.leads.filter(l => l.adjudication_needed);
+  return state.leads.filter(l => tierOf(l) === state.filter);
+}
+
+function setFilter(f) {
+  state.filter = (state.filter === f) ? null : f;
+  document.querySelectorAll(".stats .stat").forEach(el => {
+    el.classList.toggle("filter-active", el.dataset.filter === state.filter);
+  });
+  const bar = $("filter-bar");
+  if (state.filter) {
+    const labels = { A: "Showing Tier A leads only", B: "Showing Tier B leads only", C: "Showing Tier C leads only", D: "Showing Tier D leads only", FLAG: "Showing leads flagged for adjudication" };
+    $("filter-label").textContent = labels[state.filter] || "";
+    bar.classList.add("active");
+  } else {
+    bar.classList.remove("active");
+  }
+  const visible = filterLeads();
+  if (!visible.find(l => l.lead_id === state.selectedId)) {
+    state.selectedId = visible[0]?.lead_id || null;
+  }
+  renderList();
+  renderDetail();
+}
+
 function renderList() {
   const list = $("lead-list");
   list.innerHTML = "";
-  for (const lead of state.leads) {
+  const visible = filterLeads();
+  if (!visible.length) {
+    list.innerHTML = `<div style="padding:24px 14px; text-align:center; color:var(--muted); font-size:12px;">No leads match this filter.</div>`;
+    return;
+  }
+  for (const lead of visible) {
     const t = tierOf(lead);
     const initials = ((lead.first_name || "?")[0] || "?") + ((lead.last_name || "")[0] || "");
     const row = document.createElement("div");
@@ -493,6 +545,10 @@ async function runAi() {
 $("btn-demo-landing").onclick = loadDemo;
 $("btn-reset").onclick = showLanding;
 $("btn-ai").onclick = runAi;
+document.querySelectorAll(".stats .stat").forEach(el => {
+  if (el.dataset.filter) el.onclick = () => setFilter(el.dataset.filter);
+});
+$("filter-clear").onclick = () => setFilter(state.filter);
 </script>
 </body>
 </html>
