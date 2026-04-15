@@ -8,10 +8,39 @@
   :root {
     --bg: #f8f9fb; --card: #ffffff; --border: #e5e7eb; --muted: #6b7280;
     --text: #111827; --a: #059669; --b: #2563eb; --c: #d97706; --d: #6b7280;
-    --violet: #7c3aed; --violet-bg: #f5f3ff;
+    --violet: #7c3aed; --violet-bg: #f5f3ff; --violet-border: #ddd6fe;
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body { margin: 0; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ── Landing ──────────────────────────────────────────── */
+  .landing { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+  .landing-card { max-width: 560px; width: 100%; text-align: center; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--violet-bg); color: var(--violet); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; border: 1px solid var(--violet-border); }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--violet); }
+  h1.title { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin: 20px 0 12px; }
+  .subtitle { font-size: 15px; color: var(--muted); margin-bottom: 30px; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; text-align: left; }
+  .feat { border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: #fff; }
+  .feat .feat-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .feat .feat-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .feat .dot.g { background: var(--a); } .feat .dot.v { background: var(--violet); }
+  .feat .dot.o { background: var(--c); } .feat .dot.b { background: var(--b); }
+  .feat .feat-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .landing-hint { font-size: 11px; color: #1e3a8a; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; text-align: center; }
+  .cta { display: flex; flex-direction: column; gap: 10px; }
+  .btn-primary-lg { width: 100%; padding: 14px; border-radius: 12px; background: var(--violet); color: #fff; border: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.15s; }
+  .btn-primary-lg:hover { background: #6d28d9; }
+  .btn-primary-lg:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary-lg { width: 100%; padding: 14px; border-radius: 12px; background: #fff; color: var(--muted); border: 2px dashed var(--border); font-weight: 600; font-size: 13px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .btn-secondary-lg:hover { border-color: var(--violet); color: var(--violet); }
+  .landing-footer { margin-top: 28px; font-size: 10px; color: var(--muted); }
+  .tip-banner { background: var(--violet-bg); border: 1px solid var(--violet-border); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 11px; color: #4c1d95; text-align: center; line-height: 1.5; }
+
+  /* ── Dashboard ───────────────────────────────────────── */
+  .dashboard { display: none; flex-direction: column; min-height: 100vh; }
+  .dashboard.active { display: flex; }
   header { height: 52px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
   header .brand { font-weight: 700; font-size: 13px; }
   header .brand .dot { display: inline-block; width: 8px; height: 8px; background: var(--violet); border-radius: 50%; margin-right: 8px; vertical-align: middle; }
@@ -22,15 +51,15 @@
   .btn-primary { background: var(--violet); border-color: var(--violet); color: #fff; }
   .btn-primary:hover { background: #6d28d9; }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  main { display: grid; grid-template-columns: 420px 1fr; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
-  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+  main { display: grid; grid-template-columns: 420px 1fr; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; width: 100%; flex: 1; }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; border-bottom: 1px solid var(--border); }
   .stat { text-align: center; }
   .stat .n { font-size: 20px; font-weight: 800; font-family: ui-monospace, monospace; }
   .stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-top: 2px; }
   .tier-a .n { color: var(--a); } .tier-b .n { color: var(--b); } .tier-c .n { color: var(--c); } .tier-d .n { color: var(--d); }
-  .hint { padding: 10px 14px; font-size: 11px; color: #1e3a8a; background: #eff6ff; border-bottom: 1px solid var(--border); }
-  .list { max-height: calc(100vh - 240px); overflow-y: auto; }
+  .source-tag { font-size: 10px; color: var(--muted); padding: 6px 14px; background: #f9fafb; border-bottom: 1px solid var(--border); font-family: ui-monospace, monospace; }
+  .list { max-height: calc(100vh - 220px); overflow-y: auto; }
   .lead-row { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; cursor: pointer; display: flex; align-items: center; gap: 10px; }
   .lead-row:hover, .lead-row.selected { background: #fafafa; }
   .lead-row.selected { background: var(--violet-bg); }
@@ -42,75 +71,143 @@
   .tier-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; font-family: ui-monospace, monospace; margin-left: 6px; }
   .tier-badge.A { background: #d1fae5; color: var(--a); } .tier-badge.B { background: #dbeafe; color: var(--b); }
   .tier-badge.C { background: #fed7aa; color: var(--c); } .tier-badge.D { background: #e5e7eb; color: var(--d); }
-  .detail { padding: 16px; }
-  .detail h2 { margin: 0 0 4px 0; font-size: 20px; }
-  .detail .subtitle { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
-  .detail .score-hero { font-size: 28px; font-weight: 800; font-family: ui-monospace, monospace; float: right; }
-  .card { border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin: 10px 0; background: #fff; }
-  .card h3 { margin: 0 0 8px 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
-  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 11px; margin: 6px 0; }
-  .bar-label { width: 100px; color: var(--muted); }
+  .detail { padding: 20px; }
+  .detail-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
+  .detail h2 { margin: 0 0 4px 0; font-size: 22px; }
+  .detail .subtitle { font-size: 12px; color: var(--muted); }
+  .detail .score-hero { font-size: 32px; font-weight: 800; font-family: ui-monospace, monospace; color: var(--text); }
+  .score-hero small { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .card { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 10px 0; background: #fff; }
+  .card h3 { margin: 0 0 10px 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 700; }
+  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 11px; margin: 7px 0; }
+  .bar-label { width: 100px; color: var(--muted); font-weight: 500; }
   .bar-track { flex: 1; height: 6px; background: #f3f4f6; border-radius: 3px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
   .bar-val { width: 30px; text-align: right; font-family: ui-monospace, monospace; font-weight: 600; }
-  .reasoning { background: var(--violet-bg); border: 1px solid #ddd6fe; border-radius: 10px; padding: 12px; margin: 10px 0; }
-  .reasoning h3 { color: var(--violet); }
-  .research { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin: 10px 0; }
-  .research h3 { color: var(--a); }
-  .research ul { margin: 4px 0 8px 20px; padding: 0; font-size: 12px; }
-  .research li { margin: 2px 0; }
-  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
+  .kv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 14px; font-size: 11px; }
+  .kv label { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+  .kv span { color: var(--text); font-size: 12px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pill-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #f3f4f6; color: var(--muted); font-size: 10px; font-weight: 500; }
+  .pill-tag.accent { background: #ede9fe; color: var(--violet); }
+  .routing-card { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 10px 0; background: #fff; }
+  .reasoning { background: var(--violet-bg); border: 1px solid var(--violet-border); border-radius: 10px; padding: 14px; margin: 10px 0; }
+  .reasoning h3 { color: var(--violet); margin: 0 0 8px 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .reasoning p { margin: 6px 0; font-size: 12px; color: #374151; line-height: 1.5; }
+  .research { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 14px; margin: 10px 0; }
+  .research h3 { color: var(--a); margin: 10px 0 6px 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+  .research h3:first-child { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+  .research .lead-brief { font-weight: 600; font-size: 13px; color: #064e3b; margin: 6px 0 10px; line-height: 1.4; }
+  .research .overview { font-size: 12px; color: #374151; margin: 4px 0 10px; line-height: 1.5; }
+  .research .meta-row { display: flex; flex-direction: column; gap: 4px; font-size: 11px; margin: 8px 0; color: #374151; }
+  .research .meta-row b { color: var(--a); }
+  .research ul { margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: #374151; line-height: 1.5; }
+  .research ul li { margin: 3px 0; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
   .pill-high { background: #d1fae5; color: var(--a); }
   .pill-medium { background: #fed7aa; color: var(--c); }
   .pill-low { background: #fee2e2; color: #dc2626; }
   .pill-unknown { background: #e5e7eb; color: var(--muted); }
-  .empty { padding: 40px 20px; text-align: center; color: var(--muted); }
-  .empty h2 { font-size: 16px; margin-bottom: 8px; color: var(--text); }
-  .empty p { font-size: 13px; margin: 6px 0; }
-  .loading { padding: 20px; text-align: center; color: var(--muted); font-size: 12px; }
-  .source-tag { font-size: 10px; color: var(--muted); padding: 6px 14px; background: #f9fafb; border-bottom: 1px solid var(--border); font-family: ui-monospace, monospace; }
-  code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  .adj-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+  .adj-card h3 { color: var(--c); margin: 0 0 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+  .adj-card p { margin: 0; font-size: 11px; color: #78350f; }
+  .empty { padding: 60px 20px; text-align: center; color: var(--muted); }
+  .empty h2 { font-size: 18px; margin-bottom: 10px; color: var(--text); font-weight: 700; }
+  .empty p { font-size: 13px; margin: 6px 0; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .loading { padding: 30px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .loading .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--violet); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--text); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 12px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .toast.err { background: #dc2626; } .toast.ok { background: var(--a); } .toast.info { background: var(--b); }
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><span class="dot"></span>Lead Intelligence Engine</div>
-  <div class="meta" id="meta">—</div>
-  <div class="actions">
-    <button class="btn" id="btn-demo">Load canonical demo</button>
-    <button class="btn btn-primary" id="btn-ai" disabled>Re-run live AI</button>
-  </div>
-</header>
 
-<main>
-  <div class="panel">
-    <div class="stats" id="stats">
-      <div class="stat tier-a"><div class="n" id="s-a">–</div><div class="l">Tier A</div></div>
-      <div class="stat tier-b"><div class="n" id="s-b">–</div><div class="l">Tier B</div></div>
-      <div class="stat tier-c"><div class="n" id="s-c">–</div><div class="l">Tier C</div></div>
-      <div class="stat tier-d"><div class="n" id="s-d">–</div><div class="l">Tier D</div></div>
-      <div class="stat"><div class="n" id="s-flag">–</div><div class="l">Flag</div></div>
-    </div>
-    <div class="hint" id="hint">Click <b>Load canonical demo</b> for the approved Python pipeline run (instant, matches submission). Click <b>Re-run live AI</b> to re-execute the pipeline against the OpenAI endpoint.</div>
-    <div class="source-tag" id="source-tag" style="display:none"></div>
-    <div class="list" id="lead-list"></div>
-  </div>
-  <div class="panel">
-    <div class="detail" id="detail">
-      <div class="empty">
-        <h2>No dataset loaded</h2>
-        <p>Click <b>Load canonical demo</b> to view the approved Python submission result.</p>
-        <p>This app is a thin wrapper over the Python pipeline — no parallel scoring logic exists in the UI.</p>
+<!-- ── Landing ────────────────────────────────────────── -->
+<div class="landing" id="landing">
+  <div class="landing-card">
+    <div class="badge">WalkMe Assessment</div>
+    <h1 class="title">Lead Intelligence<br/>Engine</h1>
+    <p class="subtitle">Converts inbound signals into prioritized, confidence-aware routing decisions.</p>
+
+    <div class="feature-grid">
+      <div class="feat">
+        <div class="feat-title"><span class="dot g"></span>4D Scoring</div>
+        <div class="feat-desc">ICP Fit · Intent · Engagement · Confidence</div>
+      </div>
+      <div class="feat">
+        <div class="feat-title"><span class="dot v"></span>AI Layer</div>
+        <div class="feat-desc">gpt-4o-mini validates every tier decision</div>
+      </div>
+      <div class="feat">
+        <div class="feat-title"><span class="dot o"></span>Adjudication</div>
+        <div class="feat-desc">Conflicting signals surfaced, not hidden</div>
+      </div>
+      <div class="feat">
+        <div class="feat-title"><span class="dot b"></span>Research</div>
+        <div class="feat-desc">Grounded web-search briefs for Tier A</div>
       </div>
     </div>
+
+    <div class="landing-hint">
+      Click <b>Run demo</b> for the approved Python pipeline result (instant, 12/2/8/8). Click <b>Re-run live AI</b> inside the dashboard to re-execute the pipeline against gpt-4o-mini.
+    </div>
+
+    <div class="cta">
+      <button class="btn-primary-lg" id="btn-demo-landing">Run demo — 30 leads</button>
+      <button class="btn-secondary-lg" disabled>Upload your leads (coming soon)</button>
+    </div>
+
+    <div class="landing-footer">Scoring runs in Python. AI layer uses gpt-4o-mini. · Dmitry Hasin · April 2026</div>
   </div>
-</main>
+</div>
+
+<!-- ── Dashboard ─────────────────────────────────────── -->
+<div class="dashboard" id="dashboard">
+  <header>
+    <div class="brand"><span class="dot"></span>Lead Intelligence Engine</div>
+    <div class="meta" id="meta">—</div>
+    <div class="actions">
+      <button class="btn" id="btn-home">← Home</button>
+      <button class="btn btn-primary" id="btn-ai">Re-run live AI</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="panel">
+      <div class="stats">
+        <div class="stat tier-a"><div class="n" id="s-a">–</div><div class="l">Tier A</div></div>
+        <div class="stat tier-b"><div class="n" id="s-b">–</div><div class="l">Tier B</div></div>
+        <div class="stat tier-c"><div class="n" id="s-c">–</div><div class="l">Tier C</div></div>
+        <div class="stat tier-d"><div class="n" id="s-d">–</div><div class="l">Tier D</div></div>
+        <div class="stat"><div class="n" id="s-flag">–</div><div class="l">Flag</div></div>
+      </div>
+      <div class="source-tag" id="source-tag" style="display:none"></div>
+      <div class="list" id="lead-list"></div>
+    </div>
+    <div class="panel">
+      <div class="detail" id="detail">
+        <div class="empty"><h2>Select a lead</h2><p>Pick a row from the left to see the full score breakdown, AI reasoning, and account research.</p></div>
+      </div>
+    </div>
+  </main>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
 let state = { leads: [], stats: null, selectedId: null };
 
+function showDashboard() { $("landing").style.display = "none"; $("dashboard").classList.add("active"); }
+function showLanding() { $("landing").style.display = "flex"; $("dashboard").classList.remove("active"); }
 function tierOf(lead) { return lead.adjusted_tier || lead.tier || "D"; }
+
+function toast(type, msg) {
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
 
 function renderStats(stats) {
   if (!stats) return;
@@ -136,9 +233,9 @@ function renderList() {
     row.className = "lead-row" + (state.selectedId === lead.lead_id ? " selected" : "");
     row.innerHTML = `
       <div class="avatar a-${t.toLowerCase()}">${initials.toUpperCase()}</div>
-      <div style="flex:1; min-width:0;">
+      <div style="flex:1; min-width:0; overflow:hidden;">
         <div class="lead-name">${lead.first_name || ""} ${lead.last_name || ""}<span class="tier-badge ${t}">${t}</span></div>
-        <div class="lead-meta">${lead.job_title || "—"} · ${lead.company || "—"}</div>
+        <div class="lead-meta" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lead.job_title || "—"} · ${lead.company || "—"}</div>
       </div>
       <div class="score">${Number(lead.final_score || 0).toFixed(1)}</div>`;
     row.onclick = () => { state.selectedId = lead.lead_id; renderList(); renderDetail(); };
@@ -153,17 +250,15 @@ function bar(label, v, color) {
     <div class="bar-val">${w}</div></div>`;
 }
 
-function pill(value, type) {
-  const cls = { high: "pill-high", medium: "pill-medium", low: "pill-low" }[String(value).toLowerCase()] || "pill-unknown";
+function pill(value) {
+  const v = String(value || "unknown").toLowerCase();
+  const cls = { high: "pill-high", medium: "pill-medium", low: "pill-low" }[v] || "pill-unknown";
   return `<span class="pill ${cls}">${value || "unknown"}</span>`;
 }
 
 function parseResearch(lead) {
-  // Python pipeline stores the full JSON string in research_raw.
-  // The live /score response keeps the structured object on the lead dict too.
-  if (lead.research_raw) {
-    try { return JSON.parse(lead.research_raw); } catch {}
-  }
+  if (lead.research_raw) { try { return JSON.parse(lead.research_raw); } catch {} }
+  if (lead.research_full) return lead.research_full;
   return null;
 }
 
@@ -171,79 +266,89 @@ function renderResearch(lead) {
   const r = parseResearch(lead);
   const summary = lead.research_summary;
   if (!r && !summary) return "";
-  if (!r) {
-    return `<div class="research"><h3>Account Research</h3><p>${summary}</p></div>`;
-  }
+  if (!r) return `<div class="research"><h3>Account Research</h3><p>${summary}</p></div>`;
+
   const arr = (xs) => Array.isArray(xs) && xs.length
     ? `<ul>${xs.map(x => `<li>${x}</li>`).join("")}</ul>` : "";
+
   return `<div class="research">
     <h3>Account Research ${pill(r.research_confidence)}</h3>
-    ${r.one_line_brief ? `<p style="font-weight:600; margin:4px 0 8px;">${r.one_line_brief}</p>` : ""}
-    ${r.company_overview ? `<p style="font-size:12px; margin:4px 0;">${r.company_overview}</p>` : ""}
-    <div style="font-size:11px; margin:6px 0;">
-      ${r.employee_count ? `<div><b>Employees:</b> ${r.employee_count}</div>` : ""}
-      ${r.estimated_revenue ? `<div><b>Revenue:</b> ${r.estimated_revenue}</div>` : ""}
-      ${r.existing_dap_vendors ? `<div><b>Existing DAP vendors:</b> ${r.existing_dap_vendors}</div>` : ""}
-    </div>
-    ${r.recent_developments?.length ? `<h3 style="margin-top:10px;">Recent developments</h3>${arr(r.recent_developments)}` : ""}
+    ${r.one_line_brief ? `<div class="lead-brief">${r.one_line_brief}</div>` : ""}
+    ${r.company_overview ? `<h3 style="margin-top:4px;">Overview</h3><div class="overview">${r.company_overview}</div>` : ""}
+    ${(r.employee_count || r.estimated_revenue || r.existing_dap_vendors) ? `
+      <div class="meta-row">
+        ${r.employee_count ? `<div><b>Employees:</b> ${r.employee_count}</div>` : ""}
+        ${r.estimated_revenue ? `<div><b>Revenue:</b> ${r.estimated_revenue}</div>` : ""}
+        ${r.existing_dap_vendors ? `<div><b>Existing DAP vendors:</b> ${r.existing_dap_vendors}</div>` : ""}
+      </div>` : ""}
+    ${r.recent_developments?.length ? `<h3>Recent developments</h3>${arr(r.recent_developments)}` : ""}
     ${r.pain_points?.length ? `<h3>Pain points</h3>${arr(r.pain_points)}` : ""}
     ${r.urgency_signals?.length ? `<h3>Urgency signals</h3>${arr(r.urgency_signals)}` : ""}
-    ${r.data_gaps?.length ? `<h3>Data gaps</h3>${arr(r.data_gaps)}` : ""}
+    ${r.data_gaps?.length ? `<h3 style="color:var(--muted);">Data gaps</h3>${arr(r.data_gaps)}` : ""}
   </div>`;
 }
 
 function renderDetail() {
   const lead = state.leads.find(l => l.lead_id === state.selectedId);
-  if (!lead) { $("detail").innerHTML = `<div class="empty"><h2>Select a lead</h2></div>`; return; }
+  if (!lead) { $("detail").innerHTML = `<div class="empty"><h2>Select a lead</h2><p>Pick a row from the left to see the full breakdown.</p></div>`; return; }
   const t = tierOf(lead);
   const aiOk = lead.ai_reasoning && !String(lead.ai_reasoning).startsWith("AI ");
+
+  const pages = (lead.pages_visited || "").split(";").map(p => p.trim()).filter(Boolean);
+  const tech = (lead.technology_stack || "").split(";").map(p => p.trim()).filter(Boolean);
+
   $("detail").innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:start;">
+    <div class="detail-header">
       <div>
         <h2>${lead.first_name || ""} ${lead.last_name || ""} <span class="tier-badge ${t}" style="font-size:12px; vertical-align:middle;">${t}</span></h2>
-        <div class="subtitle">${lead.job_title || "—"} · ${lead.company || "—"} · ${lead.email || ""}</div>
+        <div class="subtitle">${lead.job_title || "—"} · ${lead.company || "—"}<br/><span style="color:var(--muted); font-size:11px;">${lead.email || ""}</span></div>
       </div>
-      <div class="score-hero">${Number(lead.final_score || 0).toFixed(1)}</div>
+      <div class="score-hero">${Number(lead.final_score || 0).toFixed(1)}<small>/100</small></div>
     </div>
 
     <div class="card">
       <h3>Score Breakdown</h3>
-      ${bar("ICP Fit (40%)", lead.icp_fit_score, "var(--a)")}
-      ${bar("Intent (35%)", lead.intent_score, "var(--b)")}
-      ${bar("Engagement (15%)", lead.engagement_score, "var(--c)")}
-      ${bar("Confidence (10%)", lead.data_confidence_score, "var(--violet)")}
+      ${bar("ICP Fit 40%", lead.icp_fit_score, "var(--a)")}
+      ${bar("Intent 35%", lead.intent_score, "var(--b)")}
+      ${bar("Engage 15%", lead.engagement_score, "var(--c)")}
+      ${bar("Confidence 10%", lead.data_confidence_score, "var(--violet)")}
     </div>
 
     <div class="card">
-      <h3>Lead Context</h3>
-      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:11px;">
-        <div><b>Industry:</b> ${lead.industry || "—"}</div>
-        <div><b>Country:</b> ${lead.country || "—"}</div>
-        <div><b>Company size:</b> ${lead.company_size || "—"}</div>
-        <div><b>Source:</b> ${lead.lead_source || "—"}</div>
-        <div><b>Form:</b> ${lead.form_type || "—"}</div>
-        <div><b>Demo:</b> ${lead.demo_requested || "—"}</div>
+      <div class="kv-grid">
+        <div class="kv"><label>Company size</label><span>${lead.company_size || "—"}</span></div>
+        <div class="kv"><label>Industry</label><span>${lead.industry || "—"}</span></div>
+        <div class="kv"><label>Country</label><span>${lead.country || "—"}</span></div>
+        <div class="kv"><label>Source</label><span>${lead.lead_source || "—"}</span></div>
+        <div class="kv"><label>Form</label><span>${lead.form_type || "—"}</span></div>
+        <div class="kv"><label>Demo</label><span>${lead.demo_requested || "—"}</span></div>
+        <div class="kv"><label>Webinar</label><span>${lead.webinar_attended || "—"}</span></div>
+        <div class="kv"><label>Time on site</label><span>${lead.time_on_site_seconds || 0}s</span></div>
       </div>
     </div>
 
-    <div class="card">
-      <h3>Routing Decision</h3>
-      <div style="font-size:13px; font-weight:600;">${lead.routing_owner || "—"}</div>
-      ${lead.routing_sla_minutes ? `<div style="font-size:11px; color:var(--muted); margin-top:4px;">SLA: ${lead.routing_sla_minutes} min</div>` : ""}
-      ${lead.human_review_needed ? `<div style="font-size:11px; color:var(--c); margin-top:4px;">⚠ Human review needed</div>` : ""}
-      ${lead.recommended_action_summary ? `<div style="font-size:11px; color:var(--muted); margin-top:6px;">${lead.recommended_action_summary}</div>` : ""}
+    ${(pages.length || tech.length) ? `
+    <div style="display:flex; gap:10px; margin:10px 0;">
+      ${pages.length ? `<div class="card" style="flex:1; margin:0;"><h3>Pages visited</h3><div class="pills">${pages.map(p => `<span class="pill-tag">${p}</span>`).join("")}</div></div>` : ""}
+      ${tech.length ? `<div class="card" style="flex:1; margin:0;"><h3>Tech stack</h3><div class="pills">${tech.map(p => `<span class="pill-tag accent">${p}</span>`).join("")}</div></div>` : ""}
+    </div>` : ""}
+
+    <div class="routing-card">
+      <h3 style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin:0 0 6px;">Routing Decision</h3>
+      <div style="font-size:13px; font-weight:600;">${lead.routing_owner || "—"}${lead.routing_sla_minutes ? ` <span style="font-size:10px; font-family:ui-monospace,monospace; background:#dbeafe; color:var(--b); padding:1px 6px; border-radius:4px; margin-left:6px;">SLA ${lead.routing_sla_minutes}m</span>` : ""}${lead.human_review_needed ? ` <span style="font-size:10px; color:var(--c); margin-left:6px;">⚠ Human review</span>` : ""}</div>
+      ${lead.recommended_action_summary ? `<p style="font-size:11px; color:var(--muted); margin:6px 0 0; line-height:1.5;">${lead.recommended_action_summary}</p>` : ""}
     </div>
 
     ${lead.adjudication_needed ? `
-    <div class="card" style="background:#fffbeb; border-color:#fde68a;">
-      <h3 style="color:var(--c);">Adjudication Flagged</h3>
-      <p style="font-size:11px; margin:4px 0;">${lead.adjudication_reasons || ""}</p>
+    <div class="adj-card">
+      <h3>Adjudication Flagged</h3>
+      <p>${lead.adjudication_reasons || ""}</p>
     </div>` : ""}
 
     ${aiOk ? `
     <div class="reasoning">
       <h3>AI Reasoning · gpt-4o-mini ${pill(lead.ai_confidence)}</h3>
-      <p style="font-size:12px; margin:6px 0;">${lead.ai_reasoning}</p>
+      <p>${lead.ai_reasoning}</p>
     </div>` : ""}
 
     ${renderResearch(lead)}
@@ -251,7 +356,8 @@ function renderDetail() {
 }
 
 async function loadDemo() {
-  $("detail").innerHTML = `<div class="loading">Loading canonical dataset…</div>`;
+  $("btn-demo-landing").disabled = true;
+  $("btn-demo-landing").textContent = "Loading…";
   try {
     const r = await fetch("/demo");
     const d = await r.json();
@@ -261,17 +367,20 @@ async function loadDemo() {
     renderStats(state.stats);
     renderList();
     renderDetail();
-    $("btn-ai").disabled = false;
+    showDashboard();
   } catch (e) {
-    $("detail").innerHTML = `<div class="empty"><h2>Failed to load /demo</h2><p>${e.message}</p></div>`;
+    toast("err", "Failed to load demo: " + e.message);
+  } finally {
+    $("btn-demo-landing").disabled = false;
+    $("btn-demo-landing").textContent = "Run demo — 30 leads";
   }
 }
 
 async function runAi() {
   if (!state.leads.length) return;
   $("btn-ai").disabled = true;
-  $("btn-ai").textContent = "Running live pipeline… (~5-8 min)";
-  $("detail").innerHTML = `<div class="loading">Running live gpt-4o-mini pipeline on ${state.leads.length} leads…<br/>Reasoning → Adjudication → Tier A Research. Please wait.</div>`;
+  $("btn-ai").textContent = "Running… (~5-8 min)";
+  $("detail").innerHTML = `<div class="loading"><div class="spinner"></div><div>Running live gpt-4o-mini pipeline on ${state.leads.length} leads…<br/>Reasoning → Adjudication → Tier A Research</div></div>`;
   try {
     const input = state.leads.map(l => ({
       lead_id: l.lead_id, first_name: l.first_name, last_name: l.last_name, email: l.email,
@@ -296,15 +405,18 @@ async function runAi() {
     renderStats(state.stats);
     renderList();
     renderDetail();
+    toast("ok", "Live pipeline complete");
   } catch (e) {
-    $("detail").innerHTML = `<div class="empty"><h2>Live pipeline failed</h2><p>${e.message}</p></div>`;
+    toast("err", "Live pipeline failed: " + e.message);
+    renderDetail();
   } finally {
     $("btn-ai").disabled = false;
     $("btn-ai").textContent = "Re-run live AI";
   }
 }
 
-$("btn-demo").onclick = loadDemo;
+$("btn-demo-landing").onclick = loadDemo;
+$("btn-home").onclick = showLanding;
 $("btn-ai").onclick = runAi;
 </script>
 </body>
