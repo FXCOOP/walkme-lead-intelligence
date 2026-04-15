@@ -305,7 +305,13 @@ function renderDetail() {
   const lead = state.leads.find(l => l.lead_id === state.selectedId);
   if (!lead) { $("detail").innerHTML = `<div class="empty"><h2>Select a lead</h2><p>Pick a row from the left to see the full breakdown.</p></div>`; return; }
   const t = tierOf(lead);
-  const aiOk = lead.ai_reasoning && !String(lead.ai_reasoning).startsWith("AI ");
+  // AI/research blocks are hidden in deterministic mode. The Enable AI click
+  // switches source to "live pipeline" and only then do these blocks appear.
+  const isDeterministic = state.stats && String(state.stats.source || "").toLowerCase().startsWith("deterministic");
+  const aiOk = !isDeterministic && lead.ai_reasoning && !String(lead.ai_reasoning).startsWith("AI ") && lead.ai_reasoning !== "AI layer skipped";
+  const showAdjudication = !isDeterministic && lead.adjudication_needed;
+  const showResearch = !isDeterministic && (lead.research_raw || lead.research_full || (lead.research_summary && lead.research_summary !== "Research skipped"));
+  const showHumanReview = !isDeterministic && lead.human_review_needed;
 
   const pages = (lead.pages_visited || "").split(";").map(p => p.trim()).filter(Boolean);
   const tech = (lead.technology_stack || "").split(";").map(p => p.trim()).filter(Boolean);
@@ -348,11 +354,11 @@ function renderDetail() {
 
     <div class="routing-card">
       <h3 style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin:0 0 6px;">Routing Decision</h3>
-      <div style="font-size:13px; font-weight:600;">${lead.routing_owner || "—"}${lead.routing_sla_minutes ? ` <span style="font-size:10px; font-family:ui-monospace,monospace; background:#dbeafe; color:var(--b); padding:1px 6px; border-radius:4px; margin-left:6px;">SLA ${lead.routing_sla_minutes}m</span>` : ""}${lead.human_review_needed ? ` <span style="font-size:10px; color:var(--c); margin-left:6px;">⚠ Human review</span>` : ""}</div>
+      <div style="font-size:13px; font-weight:600;">${lead.routing_owner || "—"}${lead.routing_sla_minutes ? ` <span style="font-size:10px; font-family:ui-monospace,monospace; background:#dbeafe; color:var(--b); padding:1px 6px; border-radius:4px; margin-left:6px;">SLA ${lead.routing_sla_minutes}m</span>` : ""}${showHumanReview ? ` <span style="font-size:10px; color:var(--c); margin-left:6px;">⚠ Human review</span>` : ""}</div>
       ${lead.recommended_action_summary ? `<p style="font-size:11px; color:var(--muted); margin:6px 0 0; line-height:1.5;">${lead.recommended_action_summary}</p>` : ""}
     </div>
 
-    ${lead.adjudication_needed ? `
+    ${showAdjudication ? `
     <div class="adj-card">
       <h3>Adjudication Flagged</h3>
       <p>${lead.adjudication_reasons || ""}</p>
@@ -364,7 +370,7 @@ function renderDetail() {
       <p>${lead.ai_reasoning}</p>
     </div>` : ""}
 
-    ${renderResearch(lead)}
+    ${showResearch ? renderResearch(lead) : ""}
   `;
 }
 
