@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lead Intelligence Engine</title>
+<style>
+  :root {
+    --bg: #f8f9fb; --card: #ffffff; --border: #e5e7eb; --muted: #6b7280;
+    --text: #111827; --a: #059669; --b: #2563eb; --c: #d97706; --d: #6b7280;
+    --violet: #7c3aed; --violet-bg: #f5f3ff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  header { height: 52px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  header .brand { font-weight: 700; font-size: 13px; }
+  header .brand .dot { display: inline-block; width: 8px; height: 8px; background: var(--violet); border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  header .meta { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
+  header .actions { display: flex; gap: 8px; }
+  .btn { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: #fff; color: var(--text); cursor: pointer; }
+  .btn:hover { background: #f9fafb; }
+  .btn-primary { background: var(--violet); border-color: var(--violet); color: #fff; }
+  .btn-primary:hover { background: #6d28d9; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  main { display: grid; grid-template-columns: 420px 1fr; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; border-bottom: 1px solid var(--border); }
+  .stat { text-align: center; }
+  .stat .n { font-size: 20px; font-weight: 800; font-family: ui-monospace, monospace; }
+  .stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-top: 2px; }
+  .tier-a .n { color: var(--a); } .tier-b .n { color: var(--b); } .tier-c .n { color: var(--c); } .tier-d .n { color: var(--d); }
+  .hint { padding: 10px 14px; font-size: 11px; color: #1e3a8a; background: #eff6ff; border-bottom: 1px solid var(--border); }
+  .list { max-height: calc(100vh - 240px); overflow-y: auto; }
+  .lead-row { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .lead-row:hover, .lead-row.selected { background: #fafafa; }
+  .lead-row.selected { background: var(--violet-bg); }
+  .avatar { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 11px; flex-shrink: 0; }
+  .a-a { background: var(--a); } .a-b { background: var(--b); } .a-c { background: var(--c); } .a-d { background: var(--d); }
+  .lead-name { font-weight: 600; font-size: 12px; }
+  .lead-meta { font-size: 11px; color: var(--muted); }
+  .score { font-family: ui-monospace, monospace; font-weight: 700; font-size: 12px; margin-left: auto; }
+  .tier-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; font-family: ui-monospace, monospace; margin-left: 6px; }
+  .tier-badge.A { background: #d1fae5; color: var(--a); } .tier-badge.B { background: #dbeafe; color: var(--b); }
+  .tier-badge.C { background: #fed7aa; color: var(--c); } .tier-badge.D { background: #e5e7eb; color: var(--d); }
+  .detail { padding: 16px; }
+  .detail h2 { margin: 0 0 4px 0; font-size: 20px; }
+  .detail .subtitle { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .detail .score-hero { font-size: 28px; font-weight: 800; font-family: ui-monospace, monospace; float: right; }
+  .card { border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin: 10px 0; background: #fff; }
+  .card h3 { margin: 0 0 8px 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 11px; margin: 6px 0; }
+  .bar-label { width: 100px; color: var(--muted); }
+  .bar-track { flex: 1; height: 6px; background: #f3f4f6; border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .bar-val { width: 30px; text-align: right; font-family: ui-monospace, monospace; font-weight: 600; }
+  .reasoning { background: var(--violet-bg); border: 1px solid #ddd6fe; border-radius: 10px; padding: 12px; margin: 10px 0; }
+  .reasoning h3 { color: var(--violet); }
+  .research { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin: 10px 0; }
+  .research h3 { color: var(--a); }
+  .research ul { margin: 4px 0 8px 20px; padding: 0; font-size: 12px; }
+  .research li { margin: 2px 0; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
+  .pill-high { background: #d1fae5; color: var(--a); }
+  .pill-medium { background: #fed7aa; color: var(--c); }
+  .pill-low { background: #fee2e2; color: #dc2626; }
+  .pill-unknown { background: #e5e7eb; color: var(--muted); }
+  .empty { padding: 40px 20px; text-align: center; color: var(--muted); }
+  .empty h2 { font-size: 16px; margin-bottom: 8px; color: var(--text); }
+  .empty p { font-size: 13px; margin: 6px 0; }
+  .loading { padding: 20px; text-align: center; color: var(--muted); font-size: 12px; }
+  .source-tag { font-size: 10px; color: var(--muted); padding: 6px 14px; background: #f9fafb; border-bottom: 1px solid var(--border); font-family: ui-monospace, monospace; }
+  code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span>Lead Intelligence Engine</div>
+  <div class="meta" id="meta">—</div>
+  <div class="actions">
+    <button class="btn" id="btn-demo">Load canonical demo</button>
+    <button class="btn btn-primary" id="btn-ai" disabled>Re-run live AI</button>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="stats" id="stats">
+      <div class="stat tier-a"><div class="n" id="s-a">–</div><div class="l">Tier A</div></div>
+      <div class="stat tier-b"><div class="n" id="s-b">–</div><div class="l">Tier B</div></div>
+      <div class="stat tier-c"><div class="n" id="s-c">–</div><div class="l">Tier C</div></div>
+      <div class="stat tier-d"><div class="n" id="s-d">–</div><div class="l">Tier D</div></div>
+      <div class="stat"><div class="n" id="s-flag">–</div><div class="l">Flag</div></div>
+    </div>
+    <div class="hint" id="hint">Click <b>Load canonical demo</b> for the approved Python pipeline run (instant, matches submission). Click <b>Re-run live AI</b> to re-execute the pipeline against the OpenAI endpoint.</div>
+    <div class="source-tag" id="source-tag" style="display:none"></div>
+    <div class="list" id="lead-list"></div>
+  </div>
+  <div class="panel">
+    <div class="detail" id="detail">
+      <div class="empty">
+        <h2>No dataset loaded</h2>
+        <p>Click <b>Load canonical demo</b> to view the approved Python submission result.</p>
+        <p>This app is a thin wrapper over the Python pipeline — no parallel scoring logic exists in the UI.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let state = { leads: [], stats: null, selectedId: null };
+
+function tierOf(lead) { return lead.adjusted_tier || lead.tier || "D"; }
+
+function renderStats(stats) {
+  if (!stats) return;
+  $("s-a").textContent = stats.tierA ?? "–";
+  $("s-b").textContent = stats.tierB ?? "–";
+  $("s-c").textContent = stats.tierC ?? "–";
+  $("s-d").textContent = stats.tierD ?? "–";
+  $("s-flag").textContent = stats.adjudicated ?? "–";
+  $("meta").textContent = `${stats.total ?? 0} leads · avg ${stats.avgScore ?? 0}`;
+  if (stats.source) {
+    $("source-tag").textContent = "Source: " + stats.source + (stats.generated_at ? " · " + stats.generated_at : "");
+    $("source-tag").style.display = "block";
+  }
+}
+
+function renderList() {
+  const list = $("lead-list");
+  list.innerHTML = "";
+  for (const lead of state.leads) {
+    const t = tierOf(lead);
+    const initials = ((lead.first_name || "?")[0] || "?") + ((lead.last_name || "")[0] || "");
+    const row = document.createElement("div");
+    row.className = "lead-row" + (state.selectedId === lead.lead_id ? " selected" : "");
+    row.innerHTML = `
+      <div class="avatar a-${t.toLowerCase()}">${initials.toUpperCase()}</div>
+      <div style="flex:1; min-width:0;">
+        <div class="lead-name">${lead.first_name || ""} ${lead.last_name || ""}<span class="tier-badge ${t}">${t}</span></div>
+        <div class="lead-meta">${lead.job_title || "—"} · ${lead.company || "—"}</div>
+      </div>
+      <div class="score">${Number(lead.final_score || 0).toFixed(1)}</div>`;
+    row.onclick = () => { state.selectedId = lead.lead_id; renderList(); renderDetail(); };
+    list.appendChild(row);
+  }
+}
+
+function bar(label, v, color) {
+  const w = Math.max(0, Math.min(100, Number(v) || 0));
+  return `<div class="bar-row"><div class="bar-label">${label}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${w}%; background:${color};"></div></div>
+    <div class="bar-val">${w}</div></div>`;
+}
+
+function pill(value, type) {
+  const cls = { high: "pill-high", medium: "pill-medium", low: "pill-low" }[String(value).toLowerCase()] || "pill-unknown";
+  return `<span class="pill ${cls}">${value || "unknown"}</span>`;
+}
+
+function parseResearch(lead) {
+  // Python pipeline stores the full JSON string in research_raw.
+  // The live /score response keeps the structured object on the lead dict too.
+  if (lead.research_raw) {
+    try { return JSON.parse(lead.research_raw); } catch {}
+  }
+  return null;
+}
+
+function renderResearch(lead) {
+  const r = parseResearch(lead);
+  const summary = lead.research_summary;
+  if (!r && !summary) return "";
+  if (!r) {
+    return `<div class="research"><h3>Account Research</h3><p>${summary}</p></div>`;
+  }
+  const arr = (xs) => Array.isArray(xs) && xs.length
+    ? `<ul>${xs.map(x => `<li>${x}</li>`).join("")}</ul>` : "";
+  return `<div class="research">
+    <h3>Account Research ${pill(r.research_confidence)}</h3>
+    ${r.one_line_brief ? `<p style="font-weight:600; margin:4px 0 8px;">${r.one_line_brief}</p>` : ""}
+    ${r.company_overview ? `<p style="font-size:12px; margin:4px 0;">${r.company_overview}</p>` : ""}
+    <div style="font-size:11px; margin:6px 0;">
+      ${r.employee_count ? `<div><b>Employees:</b> ${r.employee_count}</div>` : ""}
+      ${r.estimated_revenue ? `<div><b>Revenue:</b> ${r.estimated_revenue}</div>` : ""}
+      ${r.existing_dap_vendors ? `<div><b>Existing DAP vendors:</b> ${r.existing_dap_vendors}</div>` : ""}
+    </div>
+    ${r.recent_developments?.length ? `<h3 style="margin-top:10px;">Recent developments</h3>${arr(r.recent_developments)}` : ""}
+    ${r.pain_points?.length ? `<h3>Pain points</h3>${arr(r.pain_points)}` : ""}
+    ${r.urgency_signals?.length ? `<h3>Urgency signals</h3>${arr(r.urgency_signals)}` : ""}
+    ${r.data_gaps?.length ? `<h3>Data gaps</h3>${arr(r.data_gaps)}` : ""}
+  </div>`;
+}
+
+function renderDetail() {
+  const lead = state.leads.find(l => l.lead_id === state.selectedId);
+  if (!lead) { $("detail").innerHTML = `<div class="empty"><h2>Select a lead</h2></div>`; return; }
+  const t = tierOf(lead);
+  const aiOk = lead.ai_reasoning && !String(lead.ai_reasoning).startsWith("AI ");
+  $("detail").innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:start;">
+      <div>
+        <h2>${lead.first_name || ""} ${lead.last_name || ""} <span class="tier-badge ${t}" style="font-size:12px; vertical-align:middle;">${t}</span></h2>
+        <div class="subtitle">${lead.job_title || "—"} · ${lead.company || "—"} · ${lead.email || ""}</div>
+      </div>
+      <div class="score-hero">${Number(lead.final_score || 0).toFixed(1)}</div>
+    </div>
+
+    <div class="card">
+      <h3>Score Breakdown</h3>
+      ${bar("ICP Fit (40%)", lead.icp_fit_score, "var(--a)")}
+      ${bar("Intent (35%)", lead.intent_score, "var(--b)")}
+      ${bar("Engagement (15%)", lead.engagement_score, "var(--c)")}
+      ${bar("Confidence (10%)", lead.data_confidence_score, "var(--violet)")}
+    </div>
+
+    <div class="card">
+      <h3>Lead Context</h3>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:11px;">
+        <div><b>Industry:</b> ${lead.industry || "—"}</div>
+        <div><b>Country:</b> ${lead.country || "—"}</div>
+        <div><b>Company size:</b> ${lead.company_size || "—"}</div>
+        <div><b>Source:</b> ${lead.lead_source || "—"}</div>
+        <div><b>Form:</b> ${lead.form_type || "—"}</div>
+        <div><b>Demo:</b> ${lead.demo_requested || "—"}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Routing Decision</h3>
+      <div style="font-size:13px; font-weight:600;">${lead.routing_owner || "—"}</div>
+      ${lead.routing_sla_minutes ? `<div style="font-size:11px; color:var(--muted); margin-top:4px;">SLA: ${lead.routing_sla_minutes} min</div>` : ""}
+      ${lead.human_review_needed ? `<div style="font-size:11px; color:var(--c); margin-top:4px;">⚠ Human review needed</div>` : ""}
+      ${lead.recommended_action_summary ? `<div style="font-size:11px; color:var(--muted); margin-top:6px;">${lead.recommended_action_summary}</div>` : ""}
+    </div>
+
+    ${lead.adjudication_needed ? `
+    <div class="card" style="background:#fffbeb; border-color:#fde68a;">
+      <h3 style="color:var(--c);">Adjudication Flagged</h3>
+      <p style="font-size:11px; margin:4px 0;">${lead.adjudication_reasons || ""}</p>
+    </div>` : ""}
+
+    ${aiOk ? `
+    <div class="reasoning">
+      <h3>AI Reasoning · gpt-4o-mini ${pill(lead.ai_confidence)}</h3>
+      <p style="font-size:12px; margin:6px 0;">${lead.ai_reasoning}</p>
+    </div>` : ""}
+
+    ${renderResearch(lead)}
+  `;
+}
+
+async function loadDemo() {
+  $("detail").innerHTML = `<div class="loading">Loading canonical dataset…</div>`;
+  try {
+    const r = await fetch("/demo");
+    const d = await r.json();
+    state.leads = d.leads || [];
+    state.stats = d.stats || null;
+    state.selectedId = state.leads[0]?.lead_id || null;
+    renderStats(state.stats);
+    renderList();
+    renderDetail();
+    $("btn-ai").disabled = false;
+  } catch (e) {
+    $("detail").innerHTML = `<div class="empty"><h2>Failed to load /demo</h2><p>${e.message}</p></div>`;
+  }
+}
+
+async function runAi() {
+  if (!state.leads.length) return;
+  $("btn-ai").disabled = true;
+  $("btn-ai").textContent = "Running live pipeline… (~5-8 min)";
+  $("detail").innerHTML = `<div class="loading">Running live gpt-4o-mini pipeline on ${state.leads.length} leads…<br/>Reasoning → Adjudication → Tier A Research. Please wait.</div>`;
+  try {
+    const input = state.leads.map(l => ({
+      lead_id: l.lead_id, first_name: l.first_name, last_name: l.last_name, email: l.email,
+      company: l.company, job_title: l.job_title, company_size: l.company_size,
+      industry: l.industry, country: l.country, lead_source: l.lead_source,
+      pages_visited: l.pages_visited, time_on_site_seconds: l.time_on_site_seconds,
+      form_type: l.form_type, webinar_attended: l.webinar_attended,
+      content_asset: l.content_asset, demo_requested: l.demo_requested,
+      technology_stack: l.technology_stack, notes: l.notes,
+      inferred_intent_signal: l.inferred_intent_signal,
+      created_at: l.created_at, last_activity_at: l.last_activity_at,
+    }));
+    const r = await fetch("/score", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leads: input, with_ai: true, with_research: true }),
+    });
+    const d = await r.json();
+    if (d.detail) throw new Error(d.detail);
+    state.leads = d.leads || [];
+    state.stats = d.stats || null;
+    state.selectedId = state.leads[0]?.lead_id || null;
+    renderStats(state.stats);
+    renderList();
+    renderDetail();
+  } catch (e) {
+    $("detail").innerHTML = `<div class="empty"><h2>Live pipeline failed</h2><p>${e.message}</p></div>`;
+  } finally {
+    $("btn-ai").disabled = false;
+    $("btn-ai").textContent = "Re-run live AI";
+  }
+}
+
+$("btn-demo").onclick = loadDemo;
+$("btn-ai").onclick = runAi;
+</script>
+</body>
+</html>

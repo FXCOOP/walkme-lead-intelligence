@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-04-15T12:03:11.757853",
+  "total_leads": 30,
+  "likely_correct": 22,
+  "needs_review": 8,
+  "self_assessed_agreement": "Self-assessed agreement: 22/30 leads. No external validation dataset. Requires 60-day backtest on closed-won data.",
+  "tier_distribution": {
+    "A": 12,
+    "D": 8,
+    "C": 8,
+    "B": 2
+  },
+  "confidence_distribution": {
+    "medium": 29,
+    "high": 1
+  },
+  "adjudicated_leads": 19,
+  "system_issues": [
+    "No systemic issues detected"
+  ]
+}

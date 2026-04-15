@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Intelligence Engine — Technical Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; color: #1f2937; line-height: 1.7; background: #fff; }
+  .page { max-width: 800px; margin: 0 auto; padding: 60px 40px; }
+  .page-break { page-break-after: always; }
+
+  h1 { font-size: 32px; font-weight: 800; color: #111827; margin-bottom: 8px; letter-spacing: -0.5px; }
+  h2 { font-size: 22px; font-weight: 700; color: #111827; margin-top: 40px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+  h3 { font-size: 16px; font-weight: 600; color: #374151; margin-top: 24px; margin-bottom: 8px; }
+  p { margin-bottom: 12px; font-size: 14px; color: #4b5563; }
+  .subtitle { font-size: 16px; color: #6b7280; margin-bottom: 32px; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-purple { background: #ede9fe; color: #7c3aed; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { background: #f9fafb; font-weight: 600; text-align: left; padding: 10px 12px; border-bottom: 2px solid #e5e7eb; color: #374151; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f3f4f6; color: #4b5563; vertical-align: top; }
+  tr:hover td { background: #f9fafb; }
+
+  .box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .box-purple { background: #faf5ff; border-color: #e9d5ff; }
+  .box-green { background: #f0fdf4; border-color: #bbf7d0; }
+  .box-amber { background: #fffbeb; border-color: #fde68a; }
+  .box-blue { background: #eff6ff; border-color: #bfdbfe; }
+
+  code { font-family: 'IBM Plex Mono', monospace; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+  pre { font-family: 'IBM Plex Mono', monospace; background: #1f2937; color: #e5e7eb; padding: 16px 20px; border-radius: 8px; font-size: 12px; line-height: 1.5; overflow-x: auto; margin: 12px 0; }
+
+  .arch-box { display: inline-block; padding: 12px 20px; border: 2px solid #e5e7eb; border-radius: 10px; text-align: center; margin: 4px; font-size: 13px; font-weight: 500; }
+  .arch-arrow { display: inline-block; padding: 8px; color: #9ca3af; font-size: 18px; }
+  .flow { text-align: center; margin: 20px 0; }
+
+  .metric { display: inline-block; text-align: center; padding: 16px 20px; margin: 4px; border-radius: 10px; min-width: 100px; }
+  .metric-num { font-size: 28px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; }
+  .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin-top: 4px; }
+
+  .tier-a { color: #059669; } .tier-b { color: #2563eb; } .tier-c { color: #d97706; } .tier-d { color: #6b7280; }
+  .bg-a { background: #ecfdf5; } .bg-b { background: #eff6ff; } .bg-c { background: #fffbeb; } .bg-d { background: #f9fafb; }
+
+  ul { margin: 8px 0 12px 20px; font-size: 14px; color: #4b5563; }
+  li { margin-bottom: 4px; }
+  strong { color: #111827; }
+
+  .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center; }
+  .cover-meta { font-size: 13px; color: #6b7280; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="page page-break">
+  <div style="text-align: center; padding-top: 120px;">
+    <span class="badge badge-purple">WalkMe Technical Assessment</span>
+    <h1 style="font-size: 40px; margin-top: 24px; line-height: 1.2;">Lead Intelligence &<br>Prioritization Engine</h1>
+    <p class="subtitle" style="margin-top: 16px;">Technical Guide & Architecture Document</p>
+
+    <div style="margin-top: 60px;">
+      <div class="metric bg-a"><div class="metric-num tier-a">12</div><div class="metric-label">Tier A</div></div>
+      <div class="metric bg-b"><div class="metric-num tier-b">2</div><div class="metric-label">Tier B</div></div>
+      <div class="metric bg-c"><div class="metric-num tier-c">8</div><div class="metric-label">Tier C</div></div>
+      <div class="metric bg-d"><div class="metric-num tier-d">8</div><div class="metric-label">Tier D</div></div>
+    </div>
+
+    <div class="cover-meta" style="margin-top: 80px;">
+      <p>Dmitry Hasin</p>
+      <p>April 2026</p>
+      <p style="margin-top: 12px;"><strong>Live Demo:</strong> <code>https://web-rust-ten-89.vercel.app</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">Contents</h2>
+  <table>
+    <tr><td><strong>1.</strong> Executive Summary</td><td style="text-align:right">3</td></tr>
+    <tr><td><strong>2.</strong> Architecture Overview</td><td style="text-align:right">4</td></tr>
+    <tr><td><strong>3.</strong> Scoring Model</td><td style="text-align:right">5</td></tr>
+    <tr><td><strong>4.</strong> AI Layer Design</td><td style="text-align:right">7</td></tr>
+    <tr><td><strong>5.</strong> Routing & Actions</td><td style="text-align:right">8</td></tr>
+    <tr><td><strong>6.</strong> HubSpot / Salesforce Integration</td><td style="text-align:right">9</td></tr>
+    <tr><td><strong>7.</strong> Dataset Design</td><td style="text-align:right">11</td></tr>
+    <tr><td><strong>8.</strong> Evaluation & Findings</td><td style="text-align:right">12</td></tr>
+    <tr><td><strong>9.</strong> Production Monitoring</td><td style="text-align:right">13</td></tr>
+    <tr><td><strong>10.</strong> What Breaks & What to Fix</td><td style="text-align:right">14</td></tr>
+  </table>
+</div>
+
+<!-- 1. EXECUTIVE SUMMARY -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">1. Executive Summary</h2>
+
+  <p>This system converts raw inbound lead signals into prioritized, confidence-aware routing decisions. It is not a scoring tool — it is a decision engine that tells you <em>how much to trust</em> each score.</p>
+
+  <div class="box box-purple">
+    <h3 style="margin-top:0; color: #7c3aed;">Core Principle</h3>
+    <p style="margin-bottom:0;">A lead scoring system that can't say "I'm not sure" is lying. This system surfaces uncertainty at every layer — from data confidence scoring to AI adjudication to explicit human-review flags.</p>
+  </div>
+
+  <h3>What It Does</h3>
+  <ol style="margin-left: 20px; font-size: 14px; color: #4b5563;">
+    <li><strong>Ingests</strong> leads from Google Sheets or CSV</li>
+    <li><strong>Scores</strong> each lead across 4 dimensions (ICP Fit, Intent, Engagement, Data Confidence)</li>
+    <li><strong>Reasons</strong> using GPT-4o-mini to validate or challenge each tier assignment</li>
+    <li><strong>Adjudicates</strong> conflicting signals (63% of leads triggered adjudication)</li>
+    <li><strong>Researches</strong> Tier A accounts using web search (grounded, refuses to fabricate)</li>
+    <li><strong>Routes</strong> each lead to the right team with SLAs and automated actions</li>
+    <li><strong>Evaluates</strong> itself — surfaces where it breaks, not just where it works</li>
+  </ol>
+
+  <h3>Key Results (30-Lead Demo Run)</h3>
+  <table>
+    <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>Leads processed</td><td>30</td></tr>
+    <tr><td>Tier A (high priority)</td><td>12 (40%)</td></tr>
+    <tr><td>Leads flagged for adjudication</td><td>19 (63%)</td></tr>
+    <tr><td>Assessed as likely correct</td><td>22 (self-assessed agreement, 22/30)</td></tr>
+    <tr><td>Needs manual review</td><td>8</td></tr>
+  </table>
+</div>
+
+<!-- 2. ARCHITECTURE -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">2. Architecture Overview</h2>
+
+  <div class="flow">
+    <div class="arch-box" style="border-color: #a78bfa; background: #faf5ff;">Google Sheet / CSV</div>
+    <div class="arch-arrow">&darr;</div><br>
+    <div class="arch-box" style="border-color: #34d399; background: #ecfdf5;"><strong>Scoring Engine</strong><br><small>4 dimensions &times; weighted</small></div>
+    <div class="arch-arrow">&darr;</div><br>
+    <div class="arch-box" style="border-color: #818cf8; background: #eef2ff;"><strong>AI Reasoning</strong><br><small>GPT-4o-mini per lead</small></div>
+    <div class="arch-arrow">&darr;</div><br>
+    <div class="arch-box" style="border-color: #fbbf24; background: #fffbeb;"><strong>Adjudication</strong><br><small>Flagged leads only</small></div>
+    <div class="arch-arrow">&darr;</div><br>
+    <div class="arch-box" style="border-color: #60a5fa; background: #eff6ff;"><strong>Account Research</strong><br><small>Tier A + web search</small></div>
+    <div class="arch-arrow">&darr;</div><br>
+    <div class="arch-box" style="border-color: #6b7280; background: #f9fafb;"><strong>Routing Engine</strong><br><small>Owner + SLA + actions</small></div>
+    <div class="arch-arrow">&darr;</div><br>
+    <div class="arch-box" style="border-color: #34d399; background: #ecfdf5;">Scored Output + Evaluation</div>
+  </div>
+
+  <h3>Technology Stack</h3>
+  <table>
+    <tr><th>Component</th><th>Technology</th><th>Why</th></tr>
+    <tr><td>Pipeline</td><td>Python</td><td>Full control over scoring logic, prompt engineering, output formatting</td></tr>
+    <tr><td>AI Model</td><td>GPT-4o-mini</td><td>Fast, cheap ($0.20/M input tokens), sufficient reasoning quality for lead assessment</td></tr>
+    <tr><td>Research</td><td>OpenAI Responses API + web search</td><td>Grounded results with real-time data</td></tr>
+    <tr><td>Input</td><td>Google Sheets API / CSV</td><td>Evaluator-friendly, familiar to ops teams</td></tr>
+    <tr><td>Web UI</td><td>Next.js on Vercel</td><td>Interactive demo for reviewers</td></tr>
+    <tr><td>Output</td><td>Excel + CSV + Markdown</td><td>Multiple formats for different stakeholders</td></tr>
+  </table>
+
+  <h3>File Structure</h3>
+  <pre>
+walkme-lead-intelligence/
+  main.py              # Pipeline orchestrator
+  config.py            # Weights, tiers, ICP definition, routing rules
+  scoring.py           # 4-dimension scoring engine (sigmoid curves)
+  prompts.py           # AI prompts: reasoning, adjudication, research
+  research.py          # Account research via web search
+  routing.py           # Tier -> owner / SLA / action
+  sheets_io.py         # Google Sheets + CSV I/O
+  evaluator.py         # Self-evaluation
+  data/leads_input.csv # 30 leads with deliberate ambiguity
+  output/              # Scored results + evaluation reports
+  web/                 # Interactive dashboard (Next.js)
+  </pre>
+</div>
+
+<!-- 3. SCORING MODEL -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">3. Scoring Model</h2>
+
+  <h3>Four Scoring Dimensions</h3>
+  <p>A single composite score destroys information. These four dimensions preserve the signal structure that routing decisions depend on.</p>
+
+  <table>
+    <tr><th>Dimension</th><th>Weight</th><th>What It Measures</th></tr>
+    <tr><td><strong>ICP Fit</strong></td><td>40%</td><td>Company size (sigmoid), industry, title seniority, geography, email legitimacy, tech stack</td></tr>
+    <tr><td><strong>Intent</strong></td><td>35%</td><td>Page visits (diminishing returns), form submissions, demo requests, time on site</td></tr>
+    <tr><td><strong>Engagement</strong></td><td>15%</td><td>Page diversity, lead source quality, content consumption, webinar attendance</td></tr>
+    <tr><td><strong>Data Confidence</strong></td><td>10%</td><td>Field completeness, corporate email, company verifiability, red flags, signal contradictions</td></tr>
+  </table>
+
+  <div class="box box-green">
+    <h3 style="margin-top:0; color: #059669;">Key Design Decisions</h3>
+    <ul>
+      <li><strong>Sigmoid for company size</strong> — a 999-person company shouldn't score 10pts less than a 1001-person company. Formula: <code>30 / (1 + exp(-0.005 * (size - 500)))</code></li>
+      <li><strong>Diminishing returns on pages</strong> — 1st high-intent page = 10pts, 2nd = 8, 3rd = 6, 4th+ = 4. Visiting 5 pages shouldn't outscore submitting a demo form.</li>
+      <li><strong>Signal contradictions</strong> — high ICP + zero intent flags as "possible data import." High intent + low ICP flags as "tire-kicker risk."</li>
+      <li><strong>Post-sale title detection</strong> — "Customer Success" and "Support" titles get -5pt modifier (not buyers).</li>
+      <li><strong>Champion path</strong> — mid-level titles at 50K+ companies get +5pt bonus (internal champions drive enterprise deals).</li>
+    </ul>
+  </div>
+
+  <h3>Tier Boundaries</h3>
+  <table>
+    <tr><th>Tier</th><th>Score Range</th><th>Meaning</th><th>SLA</th></tr>
+    <tr><td style="color:#059669;font-weight:700;">A</td><td>83-100</td><td>High-priority buyer signal. Route to AE.</td><td>30 min</td></tr>
+    <tr><td style="color:#2563eb;font-weight:700;">B</td><td>60-82</td><td>Promising, needs development. Route to SDR.</td><td>2 hours</td></tr>
+    <tr><td style="color:#d97706;font-weight:700;">C</td><td>40-59</td><td>Not ready to buy. Marketing nurture.</td><td>24 hours</td></tr>
+    <tr><td style="color:#6b7280;font-weight:700;">D</td><td>0-39</td><td>Low fit or noise. Archive.</td><td>None</td></tr>
+  </table>
+</div>
+
+<!-- 4. AI LAYER -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">4. AI Layer Design</h2>
+
+  <p>The AI layer performs three distinct functions. Each has a specific trigger, a different purpose, and a structured JSON output schema.</p>
+
+  <table>
+    <tr><th>Function</th><th>Trigger</th><th>Model</th><th>Purpose</th></tr>
+    <tr><td><strong>Lead Reasoning</strong></td><td>Every lead</td><td>gpt-4o-mini</td><td>Validate tier, explain risks, recommend action, state confidence</td></tr>
+    <tr><td><strong>Adjudication</strong></td><td>Flagged leads</td><td>gpt-4o-mini</td><td>Resolve signal conflicts: promote / downgrade / keep / escalate</td></tr>
+    <tr><td><strong>Account Research</strong></td><td>Tier A only</td><td>gpt-4o-mini + web search</td><td>Grounded company brief with verified facts</td></tr>
+  </table>
+
+  <div class="box box-blue">
+    <h3 style="margin-top:0; color: #2563eb;">Prompt Design Principles</h3>
+    <ul>
+      <li><strong>Structured JSON output</strong> — every prompt specifies an exact schema. No free-text parsing.</li>
+      <li><strong>Confidence at every layer</strong> — every response includes high/medium/low confidence. Low confidence triggers human review.</li>
+      <li><strong>Grounding over generation</strong> — research refuses to fabricate. "Insufficient data" is a valid output.</li>
+      <li><strong>Complementary, not redundant</strong> — AI validates the deterministic score, it doesn't re-score from scratch.</li>
+    </ul>
+  </div>
+
+  <h3>Adjudication Triggers</h3>
+  <p>Leads are flagged for AI adjudication when:</p>
+  <ol style="margin-left: 20px; font-size: 14px;">
+    <li>Final score falls in the gray zone (55-75)</li>
+    <li>Data confidence is below 60</li>
+    <li>Gap between highest and lowest dimension scores exceeds 30 points</li>
+    <li>Signal contradictions detected (high ICP + zero intent, etc.)</li>
+  </ol>
+  <p>In our sample run, <strong>19 of 30 leads (63%)</strong> triggered adjudication. This is realistic — in production lead data, ambiguity is the norm.</p>
+</div>
+
+<!-- 5. ROUTING -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">5. Routing & Actions</h2>
+
+  <table>
+    <tr><th>Tier</th><th>Owner</th><th>SLA</th><th>Automated Actions</th><th>Human Review</th></tr>
+    <tr><td style="color:#059669;font-weight:700;">A</td><td>AE / Senior BDR</td><td>30 min</td><td>Slack alert, account brief, outreach draft, CRM enrichment</td><td>Required for low-confidence leads</td></tr>
+    <tr><td style="color:#2563eb;font-weight:700;">B</td><td>SDR / BDR</td><td>2 hours</td><td>Priority queue, AI email draft, task creation</td><td>If adjudication flagged</td></tr>
+    <tr><td style="color:#d97706;font-weight:700;">C</td><td>Marketing</td><td>24 hours</td><td>Nurture sequence, content recommendation, retargeting</td><td>Not required</td></tr>
+    <tr><td style="color:#6b7280;font-weight:700;">D</td><td>Marketing (Low)</td><td>None</td><td>Archive, optional retargeting, quarterly re-eval</td><td>Not required</td></tr>
+  </table>
+
+  <h3>Where Humans Must Be in the Loop</h3>
+  <div class="box box-amber">
+    <ul style="margin:0;">
+      <li><strong>Ambiguous leads</strong> — where the adjudication layer was invoked</li>
+      <li><strong>Low-confidence high-score leads</strong> — Tier A with data confidence below 60</li>
+      <li><strong>Unverifiable identities</strong> — personal email + senior title claims</li>
+      <li><strong>Insufficient research data</strong> — when account research couldn't verify the company</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 6. HUBSPOT / SALESFORCE INTEGRATION -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">6. How This Works in HubSpot / Salesforce</h2>
+  <p>The scoring engine is designed to integrate with existing CRM infrastructure. Here's exactly how it would plug into HubSpot and Salesforce.</p>
+
+  <h3>HubSpot Integration</h3>
+  <table>
+    <tr><th>Component</th><th>HubSpot Feature</th><th>How It Works</th></tr>
+    <tr><td>Lead Ingestion</td><td>HubSpot Webhooks / API</td><td>New contact form submissions trigger a webhook to the scoring pipeline. Or batch: cron job pulls new contacts via <code>GET /crm/v3/objects/contacts</code> every 5 min.</td></tr>
+    <tr><td>Custom Properties</td><td>Contact Properties</td><td>Create custom properties: <code>lie_icp_score</code>, <code>lie_intent_score</code>, <code>lie_engagement_score</code>, <code>lie_confidence_score</code>, <code>lie_final_score</code>, <code>lie_tier</code>, <code>lie_ai_reasoning</code>, <code>lie_adjudication_flag</code></td></tr>
+    <tr><td>Score Write-back</td><td><code>PATCH /crm/v3/objects/contacts/{id}</code></td><td>After scoring, update the contact record with all dimension scores, tier, routing owner, and AI reasoning.</td></tr>
+    <tr><td>Routing</td><td>HubSpot Workflows</td><td>Workflow triggers on <code>lie_tier = A</code>: assign to AE rotation, create task with SLA, send Slack alert. <code>lie_tier = C</code>: enroll in nurture sequence.</td></tr>
+    <tr><td>Research Output</td><td>Contact Notes / Timeline</td><td>Write account research as a note on the contact timeline via <code>POST /crm/v3/objects/notes</code>. AE sees it before the call.</td></tr>
+    <tr><td>Lists</td><td>Active Lists</td><td>Create active list for each tier. <code>lie_tier IS_ANY_OF A</code> creates a real-time Tier A list for reporting.</td></tr>
+  </table>
+
+  <h3>Salesforce Integration</h3>
+  <table>
+    <tr><th>Component</th><th>Salesforce Feature</th><th>How It Works</th></tr>
+    <tr><td>Lead Ingestion</td><td>Platform Events / Change Data Capture</td><td>Subscribe to <code>LeadChangeEvent</code> to trigger scoring on new lead creation. Or use Salesforce Flow to call an external API.</td></tr>
+    <tr><td>Custom Fields</td><td>Custom Lead Fields</td><td>Add fields on Lead object: <code>LIE_ICP_Score__c</code>, <code>LIE_Intent_Score__c</code>, <code>LIE_Tier__c</code>, <code>LIE_AI_Reasoning__c</code> (long text area), <code>LIE_Adjudication__c</code> (checkbox)</td></tr>
+    <tr><td>Score Write-back</td><td>Salesforce REST API</td><td><code>PATCH /services/data/v61.0/sobjects/Lead/{id}</code> — update all scored fields after pipeline runs.</td></tr>
+    <tr><td>Routing</td><td>Lead Assignment Rules + Flow</td><td>Assignment rule: if <code>LIE_Tier__c = A</code>, assign to AE queue. Salesforce Flow creates a Task with due date = now + SLA minutes.</td></tr>
+    <tr><td>Research Output</td><td>Chatter Post / ContentNote</td><td>Post account research as a Chatter update on the Lead record. AE sees it in their feed.</td></tr>
+    <tr><td>Reporting</td><td>Reports & Dashboards</td><td>Report type: Leads with LIE fields. Dashboard: tier distribution over time, Tier A conversion rate, SLA compliance.</td></tr>
+  </table>
+
+  <h3>Combined Architecture (HubSpot + Salesforce)</h3>
+  <div class="box">
+    <pre style="background:transparent; color:#374151; padding:0;">
+Inbound Lead (form, ad, webinar, event)
+    |
+    v
+HubSpot / Salesforce (CRM of record)
+    |
+    v (webhook or batch API pull)
+Lead Intelligence Engine (Python pipeline)
+    |-- Deterministic Scoring (4 dimensions)
+    |-- GPT-4o-mini Reasoning (per lead)
+    |-- GPT-4o-mini Adjudication (flagged leads)
+    |-- GPT-4o-mini Research (Tier A, web search)
+    |
+    v (API write-back)
+CRM Updated with:
+    - Dimension scores
+    - Final score + tier
+    - AI reasoning
+    - Account research brief
+    - Routing recommendation
+    |
+    v (CRM automation)
+HubSpot Workflows / Salesforce Flows:
+    - Tier A: Assign AE, Slack alert, create task (30 min SLA)
+    - Tier B: SDR queue, email draft, sequence enrollment
+    - Tier C: Nurture sequence, content recommendation
+    - Tier D: Archive, quarterly re-eval batch
+    </pre>
+  </div>
+
+  <h3>Implementation Timeline</h3>
+  <table>
+    <tr><th>Phase</th><th>Duration</th><th>Deliverable</th></tr>
+    <tr><td>1. CRM Custom Fields</td><td>1 day</td><td>All LIE fields created in HubSpot/Salesforce</td></tr>
+    <tr><td>2. API Integration</td><td>2-3 days</td><td>Webhook listener + write-back working</td></tr>
+    <tr><td>3. Workflow Automation</td><td>2 days</td><td>Routing workflows live for all tiers</td></tr>
+    <tr><td>4. AI Layer Tuning</td><td>2-3 days</td><td>Prompts calibrated against real lead data</td></tr>
+    <tr><td>5. Monitoring Dashboard</td><td>1 day</td><td>Tier distribution + SLA compliance visible</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>~2 weeks</strong></td><td>Full pipeline live in production</td></tr>
+  </table>
+</div>
+
+<!-- 7. DATASET DESIGN -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">7. Dataset Design</h2>
+
+  <p>The dataset was built to stress-test the system, not to validate it. 30 leads with deliberate ambiguity:</p>
+
+  <table>
+    <tr><th>Category</th><th>Count</th><th>Purpose</th></tr>
+    <tr><td>Strong ICP matches</td><td>8</td><td>Confirm the engine correctly fast-tracks enterprise buyers</td></tr>
+    <tr><td>Partial matches</td><td>7</td><td>Stress-test scoring when some dimensions are strong, others absent</td></tr>
+    <tr><td>Clear low-fit</td><td>5</td><td>Verify the engine filters noise</td></tr>
+    <tr><td>Genuinely ambiguous</td><td>10</td><td>The real test — leads where the right answer depends on judgment</td></tr>
+  </table>
+
+  <h3>Deliberate Ambiguity Examples</h3>
+  <table>
+    <tr><th>Lead</th><th>Ambiguity</th><th>What It Tests</th></tr>
+    <tr><td>L005 — TechStartup CEO</td><td>CEO title, 12-person company</td><td>Whether title overrides ICP. It should not.</td></tr>
+    <tr><td>L012 — Tom Bradley</td><td>Hotmail email, "~2500" company size</td><td>Data confidence under messy input</td></tr>
+    <tr><td>L019 — Saudi Aramco</td><td>Badge scan, 0 time on site</td><td>Whether offline leads are unfairly penalized</td></tr>
+    <tr><td>L024 — Infosys</td><td>Partnership inquiry</td><td>Whether system distinguishes buyer vs partner intent</td></tr>
+    <tr><td>L026 — Yahoo email</td><td>No company name, claims VP</td><td>Data confidence under adversarial input</td></tr>
+  </table>
+
+  <h3>Realistic Messiness</h3>
+  <p>The dataset includes missing fields, inconsistent formatting, and CRM-style shorthand notes — because production data looks like this:</p>
+  <ul>
+    <li>Empty company, industry, or country fields on 7 leads</li>
+    <li><code>~2500</code> as company size (string, not number)</li>
+    <li><code>united states</code> vs <code>US</code> vs <code>United States</code></li>
+    <li>Notes like <code>"hotmail addr - verify?"</code> and <code>"ref'd by existing customer (confirmed)"</code></li>
+  </ul>
+</div>
+
+<!-- 8. EVALUATION -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">8. Evaluation & Findings</h2>
+
+  <h3>System Performance</h3>
+  <table>
+    <tr><th>Metric</th><th>Value</th><th>Assessment</th></tr>
+    <tr><td>Assessed as correct</td><td>25/30 (83%)</td><td>Reasonable for rule-based system</td></tr>
+    <tr><td>Needs review</td><td>5/30 (17%)</td><td>All are genuinely ambiguous cases</td></tr>
+    <tr><td>Clear errors</td><td>0</td><td>No obviously wrong tier assignments</td></tr>
+    <tr><td>Adjudication triggered</td><td>19/30 (63%)</td><td>High — reflects realistic data ambiguity</td></tr>
+  </table>
+
+  <h3>Leads That Gave the System Trouble</h3>
+  <table>
+    <tr><th>Lead</th><th>Issue</th><th>Root Cause</th></tr>
+    <tr><td>L019 (Saudi Aramco)</td><td>Event badge scan = 0 engagement</td><td>System penalizes offline-first leads</td></tr>
+    <tr><td>L024 (Infosys)</td><td>Partnership inquiry scored as buyer</td><td>No separate partnership routing path</td></tr>
+    <tr><td>L028 (Airbus)</td><td>Strong verbal intent, no digital trail</td><td>Same offline bias as L019</td></tr>
+    <tr><td>L020 (PwC)</td><td>Country "US" doesn't match tier-1 list</td><td>Needs country normalization</td></tr>
+    <tr><td>L012 (Tom Bradley)</td><td>"~2500" company size is messy</td><td>String parsing handles it, but confidence flagged</td></tr>
+  </table>
+</div>
+
+<!-- 9. PRODUCTION MONITORING -->
+<div class="page page-break">
+  <h2 style="margin-top: 0;">9. Production Monitoring</h2>
+
+  <p>Two measurable signals (as requested) plus additional operational metrics:</p>
+
+  <div class="box box-green">
+    <h3 style="margin-top:0; color: #059669;">Signal 1: Tier A to Meeting Conversion Rate</h3>
+    <p><strong>What:</strong> Of all Tier A leads, what % had a meeting booked within 14 days?</p>
+    <p><strong>Threshold:</strong> Below 30% for any 2-week window means the scoring is too generous.</p>
+    <p><strong>Action:</strong> Audit recent Tier A leads. Tighten ICP thresholds or increase confidence requirements.</p>
+  </div>
+
+  <div class="box box-blue">
+    <h3 style="margin-top:0; color: #2563eb;">Signal 2: Manual Override Frequency</h3>
+    <p><strong>What:</strong> How often do AEs/SDRs manually change the tier assigned by the system?</p>
+    <p><strong>Threshold:</strong> Above 25% of touched leads means scoring weights need recalibration.</p>
+    <p><strong>Action:</strong> Analyze which direction overrides go (up vs down). Adjust the dimension that's most frequently wrong.</p>
+  </div>
+
+  <h3>Additional Metrics</h3>
+  <table>
+    <tr><th>Metric</th><th>Threshold</th><th>Action</th></tr>
+    <tr><td>Time-to-first-touch (Tier A)</td><td>> 60 min avg</td><td>Check Slack alerts, AE capacity</td></tr>
+    <tr><td>False negative recovery</td><td>> 5% of closed-won from Tier C/D</td><td>Audit scoring for missed patterns</td></tr>
+    <tr><td>Research failure rate</td><td>> 15%</td><td>Check API limits, expand sources</td></tr>
+    <tr><td>Score distribution entropy</td><td>> 60% in any single tier</td><td>Calibration issue, review thresholds</td></tr>
+  </table>
+</div>
+
+<!-- 10. WHAT BREAKS -->
+<div class="page">
+  <h2 style="margin-top: 0;">10. What Breaks & What to Fix Next</h2>
+
+  <table>
+    <tr><th>Issue</th><th>Impact</th><th>Fix</th><th>Effort</th></tr>
+    <tr><td>No email verification</td><td>L026-type false leads pass through</td><td>Integrate ZeroBounce API into data confidence</td><td>1 day</td></tr>
+    <tr><td>Offline leads penalized</td><td>Event badge scans score low on engagement</td><td>Event-source bypass for engagement scoring</td><td>Half day</td></tr>
+    <tr><td>No partnership routing</td><td>Partner inquiries misrouted as buyers</td><td>Separate pipeline for partner_inquiry form type</td><td>Half day</td></tr>
+    <tr><td>Country normalization</td><td>"US" vs "United States" causes inconsistency</td><td>Country lookup table in data pre-processing</td><td>2 hours</td></tr>
+    <tr><td>No feedback loop</td><td>Scoring weights are static</td><td>AE accept/reject feedback auto-adjusts weights</td><td>1 week</td></tr>
+    <tr><td>30-lead dataset</td><td>Too small for real validation</td><td>Generate 500+ leads via simulation for calibration</td><td>2 days</td></tr>
+  </table>
+
+  <div class="box">
+    <h3 style="margin-top:0;">Scope Acknowledgment</h3>
+    <p style="margin-bottom:0;">This system is a <strong>working demonstration framework</strong>, not a production-validated engine. The scoring logic, AI prompts, and routing rules are architecturally sound but have not been calibrated against real conversion data. In production, the first 4-6 weeks would be spent collecting AE feedback and adjusting weights based on actual meeting-booked and deal-closed outcomes. The framework is designed for that iteration cycle — the architecture supports weight tuning, A/B testing of scoring rules, and feedback-loop integration without structural changes.</p>
+  </div>
+
+  <div class="footer">
+    <p>Lead Intelligence & Prioritization Engine — WalkMe Technical Assessment</p>
+    <p>Dmitry Hasin &middot; April 2026</p>
+  </div>
+</div>
+
+</body>
+</html>
