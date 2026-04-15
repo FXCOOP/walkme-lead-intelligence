@@ -42,6 +42,7 @@ logger = logging.getLogger("app")
 ROOT = Path(__file__).parent
 CANONICAL_CSV = ROOT / "output" / "scored_leads.csv"
 CANONICAL_EVAL = ROOT / "output" / "system_evaluation.json"
+RAW_INPUT_CSV = ROOT / "data" / "leads_input.csv"
 TEMPLATES_DIR = ROOT / "templates"
 
 app = FastAPI(
@@ -117,14 +118,38 @@ def _coerce(value: str):
 
 def _load_canonical() -> dict:
     """Load the approved Python submission artifact as the canonical demo payload.
-    No re-scoring, no OpenAI calls — this is the locked result."""
+    No re-scoring, no OpenAI calls — this is the locked result.
+
+    Merges two sources:
+    - output/scored_leads.csv → scores, tier, AI reasoning, routing, adjudication.
+    - data/leads_input.csv    → raw behavioral fields (pages_visited, time_on_site,
+                                 form_type, etc.) that the scored CSV omits but the
+                                 UI and /score re-run need.
+    """
     if not CANONICAL_CSV.exists():
         raise HTTPException(status_code=500, detail=f"Canonical artifact missing: {CANONICAL_CSV}")
 
     with open(CANONICAL_CSV, newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
 
-    typed_rows = [{k: _coerce(v) for k, v in r.items()} for r in rows]
+    # Merge raw behavioral fields from the input dataset by lead_id so the demo
+    # payload carries the full lead context, not just the scored output columns.
+    raw_by_id: dict[str, dict] = {}
+    if RAW_INPUT_CSV.exists():
+        with open(RAW_INPUT_CSV, newline="", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                raw_by_id[r.get("lead_id", "")] = r
+
+    merged_rows = []
+    for scored in rows:
+        lid = scored.get("lead_id", "")
+        raw = raw_by_id.get(lid, {})
+        # Raw input fields fill in what the scored CSV doesn't carry.
+        # Scored fields (tier, final_score, ai_reasoning, etc.) win on conflict.
+        combined = {**raw, **scored}
+        merged_rows.append(combined)
+
+    typed_rows = [{k: _coerce(v) for k, v in r.items()} for r in merged_rows]
 
     stats = {}
     if CANONICAL_EVAL.exists():
