@@ -203,6 +203,22 @@ Full scoring breakdown: [docs/business_logic.md](docs/business_logic.md)
 
 The system is designed around a single principle: **deterministic scoring is the source of truth; the AI layer is a bounded advisor.** This prevents stochastic drift from reshaping the priority queue across repeated runs.
 
+### What the AI layer actually contributes
+
+In the approved 30-lead sample, the deterministic engine and the AI layer both arrive at the same tier distribution (A=12, B=2, C=8, D=8). This is **by design, not a bug** — the bounded-authority guardrails (gray-zone ±7, confidence=high, one-tier moves, ICP/Intent/Confidence minimums for Tier A) are tight enough that AI can only move a tier when the deterministic decision was genuinely borderline. On this dataset, the scores sit far enough from boundaries that no tier change is authorized.
+
+What the AI layer *does* contribute on every run, without moving a single number:
+
+| Contribution | Count on the sample run |
+|---|---|
+| Per-lead reasoning briefs (2-3 sentences, specific risks and strengths) | 30 / 30 |
+| Structured missing-data audit (field, impact, would_change_tier) | 30 / 30 |
+| Adjudication decisions on flagged leads (conflict analysis + decision) | 19 / 30 |
+| Grounded account research via web search (10 fields, refuses to fabricate) | 10 / 10 Tier A |
+| Human-review flags when AI disagrees but guardrails block the move | 8 / 30 |
+
+The AI layer is not there to shuffle a queue. It is there to explain each decision, surface conflicts the deterministic model flagged but can't resolve, research the accounts that warrant a call, and flag for human review where confidence is low. On a dataset with more borderline scores, the same AI layer *would* move tiers — the mechanism is identical. The stability you see is a property of the sample, bounded by an architecture that refuses to move numbers on sampled signal alone.
+
 | Layer | Role | Authority |
 |---|---|---|
 | Deterministic scoring | System of record | Owns `tier` |

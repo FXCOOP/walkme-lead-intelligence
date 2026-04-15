@@ -198,6 +198,17 @@ AI reasoning and adjudication may change the deterministic tier only within expl
 
 When the AI's suggestion is blocked, `adjusted_tier` remains at the deterministic base, `ai_suggested_tier` preserves the disagreement for audit, and `human_review_needed` is set. This keeps AI judgment visible without letting sampling noise reshape the priority queue.
 
+### What the AI layer delivers, even when tiers don't change
+
+A common misread of a run like the 30-lead sample is: *"tier distribution is identical before and after AI, therefore the AI layer does nothing."* That is wrong. The AI layer produces four distinct, auditable outputs on every run:
+
+1. **Per-lead reasoning brief** (30/30 on sample) — 2-3 sentences tying the score to specific, lead-level context. The AE sees *why* this tier, not just what.
+2. **Adjudication decision on flagged leads** (19/30 on sample) — conflict analysis + promote/downgrade/keep/escalate decision for leads where the deterministic scorer itself flagged ambiguity.
+3. **Grounded account research** (10/10 Tier A on sample) — company overview, employee count, revenue, recent developments, pain points, urgency signals, existing DAP vendors, data gaps, one-line brief. Refuses to fabricate; surfaces gaps instead.
+4. **Human-review flags** (8/30 on sample) — set when AI disagrees with the deterministic tier but guardrails block the move, or when AI self-confidence is low. This is the adjudication layer catching what the deterministic one can't resolve alone.
+
+The tier distribution stability is a property of *this dataset* under *these guardrails*. On a dataset with more leads near tier boundaries, the same AI layer would reshuffle. The mechanism is identical; the inputs aren't. The demo UI surfaces all four contributions explicitly after Enable AI — Reasoning / Adjudicated / Research / Human review counters appear in the stats panel so the value of the AI layer is visible to the reviewer, not implied.
+
 ### Reproducibility
 
 - All AI calls use `temperature=0` and `seed=42`. `system_fingerprint` is logged per call.

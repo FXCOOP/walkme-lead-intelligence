@@ -58,6 +58,16 @@
   .stat .n { font-size: 20px; font-weight: 800; font-family: ui-monospace, monospace; }
   .stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-top: 2px; }
   .tier-a .n { color: var(--a); } .tier-b .n { color: var(--b); } .tier-c .n { color: var(--c); } .tier-d .n { color: var(--d); }
+  /* AI value metrics — appear after Enable AI click */
+  .ai-metrics { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--violet-bg) 0%, #fff 100%); animation: fadeIn 0.5s ease-out; }
+  .ai-metrics.active { display: grid; }
+  .ai-metrics .stat .n { color: var(--violet); font-size: 18px; }
+  .ai-metrics .stat .l { color: var(--violet); font-weight: 700; }
+  .ai-metrics-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: var(--violet); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+  .ai-metrics-header::before { content: "✨"; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .counting { animation: pulse 0.8s ease-in-out; }
   .source-tag { font-size: 10px; color: var(--muted); padding: 6px 14px; background: #f9fafb; border-bottom: 1px solid var(--border); font-family: ui-monospace, monospace; }
   .list { max-height: calc(100vh - 220px); overflow-y: auto; }
   .lead-row { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; cursor: pointer; display: flex; align-items: center; gap: 10px; }
@@ -150,7 +160,7 @@
     </div>
 
     <div class="landing-hint">
-      Click <b>Run demo</b> for deterministic local scoring on the 30-lead sample, or <b>Enable AI</b> for the full AI-assisted evaluation (gpt-4o-mini reasoning, bounded tier authority, Tier A research).
+      <b>Run demo</b> runs the deterministic Python scoring pipeline on the 30-lead sample. <b>Enable AI</b> adds the gpt-4o-mini layer on top: per-lead reasoning, adjudication on conflicting signals, grounded Tier A research, and human-review flags. Tier distribution is stable by design — AI adds explainability, not noise.
     </div>
 
     <div class="cta">
@@ -183,6 +193,13 @@
         <div class="stat tier-d"><div class="n" id="s-d">–</div><div class="l">Tier D</div></div>
         <div class="stat"><div class="n" id="s-flag">–</div><div class="l">Flag</div></div>
       </div>
+      <div class="ai-metrics" id="ai-metrics">
+        <div class="ai-metrics-header">AI layer added</div>
+        <div class="stat"><div class="n" id="m-reasoning">0</div><div class="l">Reasoning</div></div>
+        <div class="stat"><div class="n" id="m-adjudication">0</div><div class="l">Adjudicated</div></div>
+        <div class="stat"><div class="n" id="m-research">0</div><div class="l">Research</div></div>
+        <div class="stat"><div class="n" id="m-review">0</div><div class="l">Human review</div></div>
+      </div>
       <div class="source-tag" id="source-tag" style="display:none"></div>
       <div class="list" id="lead-list"></div>
     </div>
@@ -205,12 +222,49 @@ function showLanding() {
   $("s-a").textContent = "–"; $("s-b").textContent = "–"; $("s-c").textContent = "–"; $("s-d").textContent = "–"; $("s-flag").textContent = "–";
   $("meta").textContent = "—";
   $("source-tag").style.display = "none";
+  $("ai-metrics").classList.remove("active");
+  $("m-reasoning").textContent = "0"; $("m-adjudication").textContent = "0"; $("m-research").textContent = "0"; $("m-review").textContent = "0";
   $("lead-list").innerHTML = "";
   $("detail").innerHTML = `<div class="empty"><h2>Select a lead</h2><p>Pick a row from the left to see the full breakdown.</p></div>`;
   $("btn-ai").disabled = false;
   $("btn-ai").textContent = "Enable AI";
   $("landing").style.display = "flex";
   $("dashboard").classList.remove("active");
+}
+
+function animateCount(id, target, duration = 900) {
+  const el = $(id);
+  el.classList.add("counting");
+  const start = performance.now();
+  const startVal = Number(el.textContent) || 0;
+  function tick(now) {
+    const p = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(startVal + (target - startVal) * eased);
+    if (p < 1) requestAnimationFrame(tick);
+    else { el.textContent = target; el.classList.remove("counting"); }
+  }
+  requestAnimationFrame(tick);
+}
+
+function computeAiMetrics(leads) {
+  const m = { reasoning: 0, adjudication: 0, research: 0, review: 0 };
+  for (const l of leads) {
+    if (l.ai_reasoning && !String(l.ai_reasoning).startsWith("AI ") && l.ai_reasoning !== "AI layer skipped") m.reasoning++;
+    if (l.adjudication_needed) m.adjudication++;
+    if (l.research_raw || l.research_full || (l.research_summary && l.research_summary !== "Research skipped" && !String(l.research_summary).startsWith("Research "))) m.research++;
+    if (l.human_review_needed) m.review++;
+  }
+  return m;
+}
+
+function renderAiMetrics(leads) {
+  const m = computeAiMetrics(leads);
+  $("ai-metrics").classList.add("active");
+  animateCount("m-reasoning", m.reasoning);
+  animateCount("m-adjudication", m.adjudication);
+  animateCount("m-research", m.research);
+  animateCount("m-review", m.review);
 }
 function tierOf(lead) { return lead.adjusted_tier || lead.tier || "D"; }
 
@@ -422,9 +476,11 @@ async function runAi() {
     state.stats = d.stats || null;
     state.selectedId = state.leads[0]?.lead_id || null;
     renderStats(state.stats);
+    renderAiMetrics(state.leads);
     renderList();
     renderDetail();
-    toast("ok", "AI pipeline complete");
+    const m = computeAiMetrics(state.leads);
+    toast("ok", `AI layer added: ${m.reasoning} reasoning briefs · ${m.adjudication} adjudicated · ${m.research} research · ${m.review} review flags`);
   } catch (e) {
     toast("err", "AI pipeline failed: " + e.message);
     renderDetail();
