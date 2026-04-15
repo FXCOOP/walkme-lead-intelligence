@@ -1,5 +1,7 @@
 # Lead Intelligence & Prioritization Engine
 
+**Live Demo:** https://lead-intelligence-engine.onrender.com/
+
 In a 30-lead stress test, 63% of leads required AI adjudication — not because scoring failed, but because the system refuses to act with false confidence when signals conflict.
 
 This system is designed as a real-time lead decision engine, not a traditional scoring model.

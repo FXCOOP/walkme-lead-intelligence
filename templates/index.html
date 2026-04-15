@@ -95,6 +95,8 @@
   .tier-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; font-family: ui-monospace, monospace; margin-left: 6px; }
   .tier-badge.A { background: #d1fae5; color: var(--a); } .tier-badge.B { background: #dbeafe; color: var(--b); }
   .tier-badge.C { background: #fed7aa; color: var(--c); } .tier-badge.D { background: #e5e7eb; color: var(--d); }
+  .tier-badge.P { background: #ede9fe; color: #6d28d9; }
+  .dispute-flag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 4px; font-size: 9px; font-weight: 700; background: #fef3c7; color: #b45309; letter-spacing: 0.3px; vertical-align: middle; }
   .detail { padding: 20px; }
   .detail-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
   .detail h2 { margin: 0 0 4px 0; font-size: 22px; }
@@ -211,6 +213,9 @@
         <span id="filter-label">—</span>
         <button id="filter-clear">Clear filter ×</button>
       </div>
+      <div style="padding: 10px 14px; background: #f9fafb; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--muted); line-height: 1.5;">
+        <b style="color: var(--text);">How this works:</b> Deterministic scoring sets the tier. The AI layer (gpt-4o-mini) adds per-lead reasoning, adjudication on conflicting signals, grounded Tier A research, and human-review flags — without moving tier assignments, by design (bounded authority).
+      </div>
       <div class="ai-metrics" id="ai-metrics">
         <div class="ai-metrics-header">AI layer added</div>
         <div class="stat"><div class="n" id="m-reasoning">0</div><div class="l">Reasoning</div></div>
@@ -305,7 +310,13 @@ function renderStats(stats) {
   $("s-flag").textContent = stats.adjudicated ?? "–";
   $("meta").textContent = `${stats.total ?? 0} leads · avg ${stats.avgScore ?? 0}`;
   if (stats.source) {
-    $("source-tag").textContent = "Source: " + stats.source + (stats.generated_at ? " · " + stats.generated_at : "");
+    // Clearer framing: the deterministic pipeline produces tiers; the AI layer
+    // runs on top and adds reasoning, adjudication, research, and review flags.
+    const isDet = String(stats.source).toLowerCase().startsWith("deterministic");
+    const label = isDet
+      ? "Source: Python pipeline · deterministic scoring (click Enable AI to layer reasoning, adjudication, and research on top)"
+      : "Source: " + stats.source;
+    $("source-tag").textContent = label + (stats.generated_at ? " · " + stats.generated_at : "");
     $("source-tag").style.display = "block";
   }
 }
@@ -347,13 +358,18 @@ function renderList() {
   }
   for (const lead of visible) {
     const t = tierOf(lead);
+    const badgeLabel = lead.is_partnership ? "P" : t;
+    const badgeClass = lead.is_partnership ? "P" : t;
+    const aiAssessment = String(lead.ai_tier_assessment || "").toLowerCase();
+    const aiDisputes = lead.human_review_needed && aiAssessment && aiAssessment !== "correct";
+    const disputeFlag = aiDisputes ? `<span class="dispute-flag" title="AI reasoning disputes this tier — human review required">⚠ AI disputes</span>` : "";
     const initials = ((lead.first_name || "?")[0] || "?") + ((lead.last_name || "")[0] || "");
     const row = document.createElement("div");
     row.className = "lead-row" + (state.selectedId === lead.lead_id ? " selected" : "");
     row.innerHTML = `
       <div class="avatar a-${t.toLowerCase()}">${initials.toUpperCase()}</div>
       <div style="flex:1; min-width:0; overflow:hidden;">
-        <div class="lead-name">${lead.first_name || ""} ${lead.last_name || ""}<span class="tier-badge ${t}">${t}</span></div>
+        <div class="lead-name">${lead.first_name || ""} ${lead.last_name || ""}<span class="tier-badge ${badgeClass}">${badgeLabel}</span>${disputeFlag}</div>
         <div class="lead-meta" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lead.job_title || "—"} · ${lead.company || "—"}</div>
       </div>
       <div class="score">${Number(lead.final_score || 0).toFixed(1)}</div>`;
@@ -425,7 +441,7 @@ function renderDetail() {
   $("detail").innerHTML = `
     <div class="detail-header">
       <div>
-        <h2>${lead.first_name || ""} ${lead.last_name || ""} <span class="tier-badge ${t}" style="font-size:12px; vertical-align:middle;">${t}</span></h2>
+        <h2>${lead.first_name || ""} ${lead.last_name || ""} <span class="tier-badge ${lead.is_partnership ? "P" : t}" style="font-size:12px; vertical-align:middle;">${lead.is_partnership ? "P" : t}</span>${(!isDeterministic && lead.human_review_needed && lead.ai_tier_assessment && String(lead.ai_tier_assessment).toLowerCase() !== "correct") ? `<span class="dispute-flag" style="font-size:10px;" title="AI reasoning disputes this tier">⚠ AI disputes</span>` : ""}</h2>
         <div class="subtitle">${lead.job_title || "—"} · ${lead.company || "—"}<br/><span style="color:var(--muted); font-size:11px;">${lead.email || ""}</span></div>
       </div>
       <div class="score-hero">${Number(lead.final_score || 0).toFixed(1)}<small>/100</small></div>
