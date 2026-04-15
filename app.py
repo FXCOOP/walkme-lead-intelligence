@@ -244,8 +244,26 @@ def health():
 
 @app.get("/demo")
 def demo():
-    """Return the approved canonical submission artifact. Instant. No OpenAI calls.
-    Locked tier distribution: A=12, B=2, C=8, D=8, adjudicated=19."""
+    """Return the deterministic pipeline result on the sample dataset.
+
+    No OpenAI calls. Runs scoring.py + routing.py + evaluator.py only.
+    This is the honest "before AI" view — the reviewer sees the raw
+    deterministic tier distribution, then clicks 'Re-run live AI' to
+    see the AI-assisted result.
+    """
+    if not RAW_INPUT_CSV.exists():
+        raise HTTPException(status_code=500, detail=f"Raw input missing: {RAW_INPUT_CSV}")
+    with open(RAW_INPUT_CSV, newline="", encoding="utf-8") as f:
+        leads = list(csv.DictReader(f))
+    result = _run_live_pipeline(leads, with_ai=False, with_research=False)
+    result["stats"]["source"] = "deterministic pipeline (no AI)"
+    return JSONResponse(result)
+
+
+@app.get("/canonical")
+def canonical():
+    """Return the locked approved Python submission artifact. Used only for
+    reviewer verification against output/scored_leads.csv. Not surfaced in UI."""
     return JSONResponse(_load_canonical())
 
 
