@@ -150,7 +150,7 @@
     </div>
 
     <div class="landing-hint">
-      Click <b>Run demo</b> for the approved Python pipeline result (instant, 12/2/8/8). Click <b>Re-run live AI</b> inside the dashboard to re-execute the pipeline against gpt-4o-mini.
+      Click <b>Run demo</b> for deterministic local scoring on the 30-lead sample, or <b>Enable AI</b> for the full AI-assisted evaluation (gpt-4o-mini reasoning, bounded tier authority, Tier A research).
     </div>
 
     <div class="cta">
@@ -168,8 +168,9 @@
     <div class="brand"><span class="dot"></span>Lead Intelligence Engine</div>
     <div class="meta" id="meta">—</div>
     <div class="actions">
-      <button class="btn" id="btn-home">← Home</button>
-      <button class="btn btn-primary" id="btn-ai">Re-run live AI</button>
+      <button class="btn" id="btn-upload" disabled title="Upload coming soon">Upload</button>
+      <button class="btn btn-primary" id="btn-ai">Enable AI</button>
+      <button class="btn" id="btn-reset">Reset</button>
     </div>
   </header>
 
@@ -198,7 +199,19 @@ const $ = (id) => document.getElementById(id);
 let state = { leads: [], stats: null, selectedId: null };
 
 function showDashboard() { $("landing").style.display = "none"; $("dashboard").classList.add("active"); }
-function showLanding() { $("landing").style.display = "flex"; $("dashboard").classList.remove("active"); }
+function showLanding() {
+  // Full reset: clear all lead data and return to landing exactly like first load.
+  state = { leads: [], stats: null, selectedId: null };
+  $("s-a").textContent = "–"; $("s-b").textContent = "–"; $("s-c").textContent = "–"; $("s-d").textContent = "–"; $("s-flag").textContent = "–";
+  $("meta").textContent = "—";
+  $("source-tag").style.display = "none";
+  $("lead-list").innerHTML = "";
+  $("detail").innerHTML = `<div class="empty"><h2>Select a lead</h2><p>Pick a row from the left to see the full breakdown.</p></div>`;
+  $("btn-ai").disabled = false;
+  $("btn-ai").textContent = "Enable AI";
+  $("landing").style.display = "flex";
+  $("dashboard").classList.remove("active");
+}
 function tierOf(lead) { return lead.adjusted_tier || lead.tier || "D"; }
 
 function toast(type, msg) {
@@ -379,8 +392,8 @@ async function loadDemo() {
 async function runAi() {
   if (!state.leads.length) return;
   $("btn-ai").disabled = true;
-  $("btn-ai").textContent = "Running… (~5-8 min)";
-  $("detail").innerHTML = `<div class="loading"><div class="spinner"></div><div>Running live gpt-4o-mini pipeline on ${state.leads.length} leads…<br/>Reasoning → Adjudication → Tier A Research</div></div>`;
+  $("btn-ai").textContent = "Running AI…";
+  $("detail").innerHTML = `<div class="loading"><div class="spinner"></div><div>Running gpt-4o-mini pipeline on ${state.leads.length} leads…<br/>Reasoning → Adjudication → Tier A Research<br/><small style="color:var(--muted);">(~5-8 min on free plan)</small></div></div>`;
   try {
     const input = state.leads.map(l => ({
       lead_id: l.lead_id, first_name: l.first_name, last_name: l.last_name, email: l.email,
@@ -405,18 +418,18 @@ async function runAi() {
     renderStats(state.stats);
     renderList();
     renderDetail();
-    toast("ok", "Live pipeline complete");
+    toast("ok", "AI pipeline complete");
   } catch (e) {
-    toast("err", "Live pipeline failed: " + e.message);
+    toast("err", "AI pipeline failed: " + e.message);
     renderDetail();
   } finally {
     $("btn-ai").disabled = false;
-    $("btn-ai").textContent = "Re-run live AI";
+    $("btn-ai").textContent = "Enable AI";
   }
 }
 
 $("btn-demo-landing").onclick = loadDemo;
-$("btn-home").onclick = showLanding;
+$("btn-reset").onclick = showLanding;
 $("btn-ai").onclick = runAi;
 </script>
 </body>
